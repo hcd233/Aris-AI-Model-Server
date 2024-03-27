@@ -19,15 +19,17 @@ default:
 base_qci QCI_ENV_FILE:
     echo "ARTIFACT_VERSION={{ tag }}" >>"{{ QCI_ENV_FILE }}"
     @echo "Building base docker image"
-    docker build --platform={{ platforms }} -f docker/mas_base.dockerfile -t {{ registry }}/{{ repository }}:{{ tag }} .
+    # docker buildx build --push --platform={{ platforms }} -f docker/mas_base.dockerfile -t {{ registry }}/{{ repository }}:{{ tag }} .
+    docker build -f docker/mas_base.dockerfile -t {{ registry }}/{{ repository }}:{{ tag }} .
     docker push {{ registry }}/{{ repository }}:{{ tag }}
-
+    
 qci QCI_ENV_FILE:
     echo "ARTIFACT_VERSION={{ tag }}" >>"{{ QCI_ENV_FILE }}"
     @echo "Building docker image"
-    docker build --platform={{ platforms }} -f docker/dockerfile -t {{ registry }}/{{ repository }}:{{ tag }} .
+    # docker buildx build --push --platform={{ platforms }}  -f docker/dockerfile -t {{ registry }}/{{ repository }}:{{ tag }} .
+    docker build -f docker/dockerfile -t {{ registry }}/{{ repository }}:{{ tag }} .
     docker push {{ registry }}/{{ repository }}:{{ tag }}
-
+    
 env:
     poetry install --no-root
 
