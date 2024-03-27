@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y python3.11 python3-pip && pip install -
 RUN ln -s /usr/bin/python3.11 /usr/bin/python
 
 RUN pip install poetry
-RUN poetry config virtualenvs.create false
 RUN poetry install --no-root
 
-CMD ["nvcc", "-V"]
+CMD ["nvcc", "-V", "&&", "nvidia-smi"]
