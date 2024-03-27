@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "model-api-server"
+version = "0.1.0"
+description = ""
+authors = ["centonhuang <centonhuang@tencent.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+torch = "^2.2.1"
+pydantic = "^2.6.4"
+fastapi = "^0.110.0"
+uvicorn = "^0.29.0"
+loguru = "^0.7.2"
+numpy = "^1.26.4"
+text2vec = "^1.2.9"
+tiktoken = "^0.6.0"
+cachetools = "^5.3.3"
+poetry = "^1.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
