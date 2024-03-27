@@ -32,7 +32,3 @@ qci QCI_ENV_FILE:
     
 env:
     poetry install --no-root
-
-grpc:
-    poetry shell
-    python -m grpc_tools.protoc -I. --python_out=. --pyi_out=. --grpc_python_out=. src/grpc/langchain/v1/langchain.proto
