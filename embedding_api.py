@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from src.config.arg import ARGUMENTS
+from config.env import PORT
 from src.api.router import root_router, v1_router
 
 
@@ -17,7 +17,7 @@ def main():
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=ARGUMENTS["port"],
+        port=PORT,
     )
 
 
