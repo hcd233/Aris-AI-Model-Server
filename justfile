@@ -19,7 +19,7 @@ default:
 base_qci QCI_ENV_FILE:
     echo "ARTIFACT_VERSION={{ tag }}" >>"{{ QCI_ENV_FILE }}"
     @echo "Building base docker image"
-    docker buildx build --push --platform={{ platforms }} -f docker/mas_base.dockerfile -t {{ registry }}/{{ repository }}:{{ tag }} .
+    docker buildx build --push --platform={{ platforms }} -f docker/mas_base.dockerfile -t {{ registry }}/{{ base_repository }}:{{ tag }} .
     
 qci QCI_ENV_FILE:
     echo "ARTIFACT_VERSION={{ tag }}" >>"{{ QCI_ENV_FILE }}"
