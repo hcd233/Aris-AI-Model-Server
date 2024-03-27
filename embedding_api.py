@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from config.env import PORT
+from src.config.env import PORT
 from src.api.router import root_router, v1_router
 
 
