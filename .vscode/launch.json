@@ -5,14 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "embedding api",
+            "name": "model api server",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/embedding_api.py",
+            "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "envFile": "${workspaceFolder}/mas.env",
-            "args": ["--model", "../../model/bge-m3", "--seq_len", "4096", "--port", "9999"]
+            "args": [
+                "--embed", "../../model/bge-m3", 
+                "--embed_seq_len", "4096",
+                "--rerank", "../../model/bge-reranker-v2-m3",
+                "--rerank_seq_len", "512",
+            ]
         },
     ]
 }
