@@ -17,26 +17,28 @@ from src.logger import logger
 embedding_router = APIRouter()
 
 
-def _load_embedding_models(models: List[str], seq_lens: List[int]) -> Dict[str, SentenceModel]:
+def _load_embedding_models(embeds: List[str], embed_seq_lens: List[int]) -> Dict[str, SentenceModel]:
     name_embedding_map = {}
 
-    if len(models) != len(seq_lens):
+    if len(embeds) != len(embed_seq_lens):
         logger.error("[Load Embedding Models] Model and sequence length number mismatch")
         exit(-1)
 
-    for model, sql_len in tqdm(zip(models, seq_lens), desc="Load Embedding Models"):
-        _model = Path(model)
-        if not _model.exists():
-            logger.error(f"[Load Embedding Models] Model not found: {model}")
+    for embed, sql_len in tqdm(zip(embeds, embed_seq_lens), desc="Load Embedding Models"):
+        _embed = Path(embed)
+        if not _embed.exists():
+            logger.error(f"[Load Embedding Models] Model not found: {_embed}")
             exit(-1)
 
-        logger.debug(f"[Load Embedding Models] loading model: `{_model.name}` with sequence length: {sql_len} from path: {model}")
-        name_embedding_map[_model.name] = SentenceModel(model, max_seq_length=sql_len, device=DEVICE)
+        logger.debug(f"[Load Embedding Models] loading model: `{_embed.name}` with sequence length: {sql_len} from path: {embed}")
+        name_embedding_map[_embed.name] = {}
+        name_embedding_map[_embed.name]["model"] = SentenceModel(embed, max_seq_length=sql_len, device=DEVICE)
+        name_embedding_map[_embed.name]["max_length"] = sql_len
 
     return name_embedding_map
 
 
-NAME_EMBEDDING_MAP = _load_embedding_models(ARGUMENTS["model"], ARGUMENTS["seq_len"])
+NAME_EMBEDDING_MAP = _load_embedding_models(ARGUMENTS["embed"], ARGUMENTS["embed_seq_len"])
 
 
 def _load_tiktoken_tokenizer() -> Encoding:
@@ -55,16 +57,16 @@ TOKENIZER = _load_tiktoken_tokenizer()
 LRU_CACHE = LRUCache(maxsize=1000)
 
 
-@embedding_router.get("/models", dependencies=[Depends(auth_secret_key)])
+@embedding_router.get("/embeddings", dependencies=[Depends(auth_secret_key)])
 async def list_models() -> ListEmbeddingResponse:
-    return ListEmbeddingResponse(models=[m for m in NAME_EMBEDDING_MAP.keys()])
+    return ListEmbeddingResponse(embeddings=[{"name": m, "max_length": NAME_EMBEDDING_MAP[m]["max_length"]} for m in NAME_EMBEDDING_MAP.keys()])
 
 
 @embedding_router.post("/embeddings", response_model=EmbeddingResponse, dependencies=[Depends(auth_secret_key)])
 async def get_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
     logger.info(f"use model: {request.model}")
     try:
-        model = NAME_EMBEDDING_MAP[request.model]
+        model = NAME_EMBEDDING_MAP[request.model]["model"]
     except KeyError:
         logger.error(f"[Embedding] Invalid model name: {request.model}")
         raise HTTPException(

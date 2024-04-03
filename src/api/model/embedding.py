@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class ListEmbeddingResponse(BaseModel):
-    models: List[str]
+    embeddings: List[Dict[str, Any]]
 
 
 class EmbeddingRequest(BaseModel):
