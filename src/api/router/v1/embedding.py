@@ -58,19 +58,19 @@ LRU_CACHE = LRUCache(maxsize=1000)
 
 
 @embedding_router.get("/embeddings", dependencies=[Depends(auth_secret_key)])
-async def list_models() -> ListEmbeddingResponse:
+async def list_embeddings() -> ListEmbeddingResponse:
     return ListEmbeddingResponse(embeddings=[{"name": m, "max_length": NAME_EMBEDDING_MAP[m]["max_length"]} for m in NAME_EMBEDDING_MAP.keys()])
 
 
 @embedding_router.post("/embeddings", response_model=EmbeddingResponse, dependencies=[Depends(auth_secret_key)])
-async def get_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
+async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
     logger.info(f"use model: {request.model}")
     try:
         model = NAME_EMBEDDING_MAP[request.model]["model"]
     except KeyError:
         logger.error(f"[Embedding] Invalid model name: {request.model}")
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Invalid model name: {request.model}",
         )
 
@@ -81,7 +81,9 @@ async def get_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
         num_tokens_in_batch = [len(i) for i in request.input]
         tokens = sum(num_tokens_in_batch)
         request.input = TOKENIZER.decode_batch(request.input)
-        logger.info(f"[Token Count] Tiktoken Decode Num: {len(request.input)} Avg Token: {tokens/len(request.input)} Preview: {request.input[0][:20]}")
+        logger.info(
+            f"[Token Count] Tiktoken Decode Num: {len(request.input)} Avg Token: {tokens/len(request.input)} Preview: {request.input[0][:20]}"
+        )
     else:
         num_tokens_in_batch = [len(i) for i in TOKENIZER.encode_batch(request.input)]
         tokens = sum(num_tokens_in_batch)

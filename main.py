@@ -8,7 +8,7 @@ from src.middleware.logger import LoggerMiddleWare
 
 def main():
     app = FastAPI(
-        title="Fibona Embedding API",
+        title="Fibona Model API Server",
         version="0.1.0",
     )
 

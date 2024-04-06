@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import torch
 import torch.nn.functional as F
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from tqdm import tqdm
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -56,11 +56,17 @@ async def rerank(request: RerankerRequest) -> RerankerResponse:
     for doc in request.documents:
         pairs.append([request.query, doc])
 
-    with torch.no_grad():
+    try:
         model = NAME_RERANKER_MAP[request.model]["model"]
         tokenizer = NAME_RERANKER_MAP[request.model]["tokenizer"]
         max_length = NAME_RERANKER_MAP[request.model]["max_length"]
-
+    except KeyError:
+        logger.error(f"[Embedding] Invalid model name: {request.model}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Invalid model name: {request.model}",
+        )
+    with torch.no_grad():
         inputs = tokenizer(pairs, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
         scores = (
             model(**inputs, return_dict=True)
@@ -74,7 +80,7 @@ async def rerank(request: RerankerRequest) -> RerankerResponse:
 
     scores = scores.numpy()
     scores, ranks = scores.tolist(), (-scores).argsort().argsort().tolist()
-    
+
     logger.debug(f"[Rerank] scores: {scores}, ranks: {ranks}")
 
     data = [{"doc": doc, "score": round(score, 6), "rank": rank} for doc, score, rank in zip(request.documents, scores, ranks)]
