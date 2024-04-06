@@ -1,19 +1,30 @@
-from typing import Any, Dict, List
+from typing import List
 
 from pydantic import BaseModel
 
 
+class RerankModelCard(BaseModel):
+    model: str
+    max_length: int
+
+
 class ListRerankerResponse(BaseModel):
-    rerankers: List[Dict[str, Any]]
+    rerankers: List[RerankModelCard]
 
 
 class RerankerRequest(BaseModel):
     query: str
     documents: List[str]
-    normalize: bool = True
     model: str
+    normalize: bool = True
+
+
+class RerankObject(BaseModel):
+    doc: str
+    score: float
+    rank: int
 
 
 class RerankerResponse(BaseModel):
-    data: List[Dict[str, Any]]
+    data: List[RerankObject]
     model: str

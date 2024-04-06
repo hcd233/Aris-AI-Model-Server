@@ -8,7 +8,7 @@ from tiktoken import Encoding, get_encoding
 from tqdm import tqdm
 
 from src.api.auth.bearer import auth_secret_key
-from src.api.model.embedding import EmbeddingRequest, EmbeddingResponse, ListEmbeddingResponse
+from src.api.model.embedding import EmbeddingModelCard, EmbeddingObject, EmbeddingRequest, EmbeddingResponse, EmbeddingUsage, ListEmbeddingResponse
 from src.config.arg import ARGUMENTS
 from src.config.env import DEVICE
 from src.logger import logger
@@ -61,7 +61,15 @@ LRU_CACHE = LRUCache(maxsize=1000)
 
 @embedding_router.get("/embeddings", dependencies=[Depends(auth_secret_key)])
 async def list_embeddings() -> ListEmbeddingResponse:
-    return ListEmbeddingResponse(embeddings=[{"name": m, "max_length": NAME_EMBEDDING_MAP[m]["max_length"]} for m in NAME_EMBEDDING_MAP.keys()])
+    return ListEmbeddingResponse(
+        embeddings=[
+            EmbeddingModelCard(
+                model=m,
+                max_length=NAME_EMBEDDING_MAP[m]["max_length"],
+            )
+            for m in NAME_EMBEDDING_MAP.keys()
+        ]
+    )
 
 
 @embedding_router.post("/embeddings", response_model=EmbeddingResponse, dependencies=[Depends(auth_secret_key)])
@@ -133,14 +141,14 @@ async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
 
     return EmbeddingResponse(
         data=[
-            {
-                "embedding": embeddings[i],
-                "index": i,
-                "object": "embedding",
-            }
+            EmbeddingObject(
+                embedding=embeddings[i],
+                index=i,
+                object="embedding",
+            )
             for i in range(len(embeddings))
         ],
         model=request.model,
         object="list",
-        usage={"prompt_tokens": tokens, "total_tokens": tokens},
+        usage=EmbeddingUsage(prompt_tokens=0, total_tokens=tokens),
     )

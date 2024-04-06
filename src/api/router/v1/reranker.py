@@ -7,7 +7,7 @@ from torch.nn.functional import softmax
 from tqdm import tqdm
 
 from src.api.auth.bearer import auth_secret_key
-from src.api.model.reranker import ListRerankerResponse, RerankerRequest, RerankerResponse
+from src.api.model.reranker import ListRerankerResponse, RerankerRequest, RerankerResponse, RerankModelCard, RerankObject
 from src.config.arg import ARGUMENTS
 from src.config.env import BATCH_SIZE, DEVICE
 from src.logger import logger
@@ -41,7 +41,15 @@ NAME_RERANKER_MAP = _load_reranker_models(ARGUMENTS["rerank"], ARGUMENTS["rerank
 
 @reranker_router.get("/rerankers", dependencies=[Depends(auth_secret_key)])
 async def list_rerankers() -> ListRerankerResponse:
-    return ListRerankerResponse(rerankers=[{"name": m, "max_length": NAME_RERANKER_MAP[m]["max_length"]} for m in NAME_RERANKER_MAP.keys()])
+    return ListRerankerResponse(
+        rerankers=[
+            RerankModelCard(
+                model=m,
+                max_length=NAME_RERANKER_MAP[m]["max_length"],
+            )
+            for m in NAME_RERANKER_MAP.keys()
+        ]
+    )
 
 
 @reranker_router.post("/rerankers", response_model=RerankerResponse, dependencies=[Depends(auth_secret_key)])
@@ -78,7 +86,17 @@ async def rerank(request: RerankerRequest) -> RerankerResponse:
 
     logger.debug(f"[Rerank] scores: {scores}, ranks: {ranks}")
 
-    data = [{"doc": doc, "score": round(score, 6), "rank": rank} for doc, score, rank in zip(request.documents, scores, ranks)]
-    data.sort(key=lambda x: x["rank"])
-
-    return RerankerResponse(data=data, model=request.model)
+    return RerankerResponse(
+        data=sorted(
+            [
+                RerankObject(
+                    doc=doc,
+                    score=round(score, 6),
+                    rank=rank,
+                )
+                for doc, score, rank in zip(request.documents, scores, ranks)
+            ],
+            key=lambda x: x.rank,
+        ),
+        model=request.model,
+    )
