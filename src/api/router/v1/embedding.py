@@ -1,10 +1,9 @@
 from pathlib import Path
 from typing import Dict, List
 
-import numpy as np
 from cachetools import LRUCache
 from fastapi import APIRouter, Depends, HTTPException, status
-from text2vec import SentenceModel
+from sentence_transformers import SentenceTransformer
 from tiktoken import Encoding, get_encoding
 from tqdm import tqdm
 
@@ -17,23 +16,26 @@ from src.logger import logger
 embedding_router = APIRouter()
 
 
-def _load_embedding_models(embeds: List[str], embed_seq_lens: List[int]) -> Dict[str, SentenceModel]:
+def _load_embedding_models(embeds: List[str], embed_max_lengths: List[int]) -> Dict[str, Dict[str, SentenceTransformer | int]]:
     name_embedding_map = {}
 
-    if len(embeds) != len(embed_seq_lens):
+    if len(embeds) != len(embed_max_lengths):
         logger.error("[Load Embedding Models] Model and sequence length number mismatch")
         exit(-1)
 
-    for embed, sql_len in tqdm(zip(embeds, embed_seq_lens), desc="Load Embedding Models"):
+    for embed, max_length in tqdm(zip(embeds, embed_max_lengths), desc="Load Embedding Models"):
         _embed = Path(embed)
         if not _embed.exists():
             logger.error(f"[Load Embedding Models] Model not found: {_embed}")
             exit(-1)
 
-        logger.debug(f"[Load Embedding Models] loading model: `{_embed.name}` with sequence length: {sql_len} from path: {embed}")
+        logger.debug(f"[Load Embedding Models] loading model: `{_embed.name}` with sequence length: {max_length} from path: {embed}")
+        st_model = SentenceTransformer(embed, device=DEVICE)
+        st_model.max_seq_length = max_length
+
         name_embedding_map[_embed.name] = {}
-        name_embedding_map[_embed.name]["model"] = SentenceModel(embed, max_seq_length=sql_len, device=DEVICE)
-        name_embedding_map[_embed.name]["max_length"] = sql_len
+        name_embedding_map[_embed.name]["model"] = st_model
+        name_embedding_map[_embed.name]["max_length"] = max_length
 
     return name_embedding_map
 
@@ -107,6 +109,7 @@ async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
         no_cached_embeds = model.encode(
             not_cached_queries,
             batch_size=1,
+            normalize_embeddings=True,
             show_progress_bar=True,
             convert_to_numpy=True,
         ).tolist()
@@ -127,11 +130,6 @@ async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
             embeddings[cached_ids[i]] = LRU_CACHE[f"{request.model}{request.input[cached_ids[i]]}"]
     else:
         embeddings = no_cached_embeds
-
-    for i in range(len(embeddings)):
-        embedding = embeddings[i]
-        average = np.average([embedding], axis=0, weights=[num_tokens_in_batch[i]])
-        embeddings[i] = (average / np.linalg.norm(average)).tolist()
 
     return EmbeddingResponse(
         data=[
