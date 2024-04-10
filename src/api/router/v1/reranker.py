@@ -59,7 +59,7 @@ async def rerank(request: RerankerRequest) -> RerankerResponse:
         return RerankerResponse(data=[], model=request.model)
 
     for doc in request.documents:
-        pairs.append([request.query, doc])
+        pairs.append([request.query, doc.content])
 
     try:
         model = NAME_RERANKER_MAP[request.model]["model"]

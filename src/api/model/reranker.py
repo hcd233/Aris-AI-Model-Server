@@ -1,6 +1,11 @@
-from typing import List
+from typing import Any, Dict, List
 
 from pydantic import BaseModel
+
+
+class Document(BaseModel):
+    content: str
+    metadata: Dict[str, Any]
 
 
 class RerankModelCard(BaseModel):
@@ -14,13 +19,13 @@ class ListRerankerResponse(BaseModel):
 
 class RerankerRequest(BaseModel):
     query: str
-    documents: List[str]
+    documents: List[Document]
     model: str
     normalize: bool = True
 
 
 class RerankObject(BaseModel):
-    doc: str
+    doc: Document
     score: float
     rank: int
 
