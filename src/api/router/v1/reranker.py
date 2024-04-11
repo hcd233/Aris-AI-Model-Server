@@ -81,7 +81,7 @@ async def rerank(request: RerankerRequest) -> RerankerResponse:
     if request.normalize:
         scores = softmax(scores, dim=0)
 
-    scores = scores.numpy()
+    scores = scores.to("cpu").numpy()
     scores, ranks = scores.tolist(), (-scores).argsort().argsort().tolist()
 
     logger.debug(f"[Rerank] scores: {scores}, ranks: {ranks}")
