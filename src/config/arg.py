@@ -6,10 +6,10 @@ from src.logger import logger
 
 def parse_args() -> Dict[str, Any]:
     parser = ArgumentParser()
-    parser.add_argument("--embed", "-e", type=str, help="The embedding path to load", action="append")
-    parser.add_argument("--embed_seq_len", "-esl", type=int, help="The embedding max sequence length", action="append")
-    parser.add_argument("--rerank", "-r", type=str, help="The reranker path to load", action="append")
-    parser.add_argument("--rerank_seq_len", "-rsl", type=int, help="The reranker max sequence length", action="append")
+    parser.add_argument("--embed", "-e", type=str, help="The embedding path to load", action="append", default=[])
+    parser.add_argument("--embed_seq_len", "-esl", type=int, help="The embedding max sequence length", action="append", default=[])
+    parser.add_argument("--rerank", "-r", type=str, help="The reranker path to load", action="append", default=[])
+    parser.add_argument("--rerank_seq_len", "-rsl", type=int, help="The reranker max sequence length", action="append", default=[])
 
     parser.add_argument("--use_cache", "-uc", type=bool, help="Use cache", default=False)
 
