@@ -92,12 +92,12 @@ async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
         tokens = sum(num_tokens_in_batch)
         request.input = TOKENIZER.decode_batch(request.input)
         logger.info(
-            f"[Token Count] Tiktoken Decode Num: {len(request.input)} Avg Token: {tokens/len(request.input)} Preview: {request.input[0][:20]}"
+            f"[Token Count] Tiktoken Decode Num: {len(request.input)} Avg Token: {round(tokens/len(request.input), 3)} Preview: {request.input[0][:20]}"
         )
     else:
         num_tokens_in_batch = [len(i) for i in TOKENIZER.encode_batch(request.input)]
         tokens = sum(num_tokens_in_batch)
-        logger.info(f"[Token Count] Token Num: {len(request.input)} Avg Token: {tokens/len(request.input)} Preview: {request.input[0][:20]}")
+        logger.info(f"[Token Count] Token Num: {len(request.input)} Avg Token: {round(tokens/len(request.input), 3)} Preview: {request.input[0][:20]}")
 
     not_cached_ids = []
     not_cached_queries = []
