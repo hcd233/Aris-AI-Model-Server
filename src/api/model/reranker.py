@@ -21,7 +21,6 @@ class RerankerRequest(BaseModel):
     query: str
     documents: List[Document]
     model: str
-    normalize: bool = True
 
 
 class RerankObject(BaseModel):
