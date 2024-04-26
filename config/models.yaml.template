@@ -1,0 +1,9 @@
+embedding:
+  bge-m3:
+    path: ../../model/bge-m3
+    max_seq_len: 4096
+
+reranker:
+  bge-reranker-v2-m3:
+    path: ../../model/bge-reranker-v2-m3
+    max_seq_len: 1024
