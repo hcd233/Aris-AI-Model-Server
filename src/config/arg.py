@@ -36,6 +36,7 @@ class LLMConfig(BaseModel):
 class EmbeddingConfig(BaseModel):
     alias: str
     path: str
+    enable_cache: bool
     batch_size: int
     max_seq_len: int
 
