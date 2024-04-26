@@ -11,12 +11,9 @@
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "envFile": "${workspaceFolder}/mas.env",
+            "envFile": "${workspaceFolder}/config/mas.env",
             "args": [
-                "--embed", "../../model/bge-m3", 
-                "--embed_seq_len", "4096",
-                "--rerank", "../../model/bge-reranker-v2-m3",
-                "--rerank_seq_len", "512",
+                "--config_path", "config/models.yaml"
             ]
         },
     ]
