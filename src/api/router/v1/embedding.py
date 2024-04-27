@@ -1,28 +1,13 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from tiktoken import Encoding, get_encoding
 
 from src.api.auth.bearer import auth_secret_key
 from src.api.model.embedding import EmbeddingModelCard, EmbeddingObject, EmbeddingRequest, EmbeddingResponse, EmbeddingUsage, ListEmbeddingResponse
-from src.engine.embedding import EMBEDDING_MAPPING
+from src.config.gbl import EMBEDDING_MAPPING, TOKENIZER
 from src.logger import logger
 
 embedding_router = APIRouter()
-
-
-def _load_tiktoken_tokenizer() -> Encoding:
-    tokenizer = get_encoding("cl100k_base")
-
-    seq = "Hello, world!"
-    if tokenizer.decode(tokenizer.encode(seq)) != seq:
-        logger.error("[Load Tiktoken Tokenizer] Tokenizer not working properly")
-        exit(-1)
-
-    return tokenizer
-
-
-TOKENIZER = _load_tiktoken_tokenizer()
 
 
 @embedding_router.get("/embeddings", dependencies=[Depends(auth_secret_key)])

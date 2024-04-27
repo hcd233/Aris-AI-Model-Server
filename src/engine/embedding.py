@@ -1,9 +1,9 @@
-from typing import Dict, List
+from typing import List
 
 from cachetools import LRUCache
 from sentence_transformers import SentenceTransformer
 
-from src.config.arg import MODEL_CONFIG, EmbeddingConfig
+from src.config.arg import EmbeddingConfig
 from src.config.env import DEVICE
 from src.logger import logger
 
@@ -60,8 +60,3 @@ class EmbeddingEngine(BaseEngine, EmbeddingConfig):
             embeddings = no_cached_embeds
 
         return embeddings
-
-
-EMBEDDING_MAPPING: Dict[str, EmbeddingEngine] = {
-    config.alias: EmbeddingEngine.from_config(config) for config in MODEL_CONFIG.embedding_configs.values()
-}

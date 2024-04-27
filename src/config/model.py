@@ -1,29 +1,10 @@
-from argparse import ArgumentParser
 from os import PathLike
-from pathlib import Path
-from typing import Any, Dict
+from typing import Dict
 
 import yaml
 from pydantic import BaseModel
 
 from src.logger import logger
-
-
-def parse_args() -> Dict[str, Any]:
-    parser = ArgumentParser()
-    parser.add_argument("--config_path", "-cp", type=str, help="Path to model config file, in yaml format", required=True)
-    args = vars(parser.parse_args())
-
-    path = Path(args["config_path"])
-    if not path.exists():
-        logger.error(f"Config file {args['config_path']} not found")
-        exit(1)
-
-    if path.suffix not in [".yaml", ".yml"]:
-        logger.error(f"Config file {args['config_path']} must be in yaml format")
-        exit(1)
-
-    return args
 
 
 class LLMConfig(BaseModel):

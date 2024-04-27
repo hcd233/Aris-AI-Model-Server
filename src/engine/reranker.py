@@ -1,8 +1,8 @@
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 from sentence_transformers import CrossEncoder
 
-from src.config.arg import MODEL_CONFIG, RerankerConfig
+from src.config.arg import RerankerConfig
 from src.config.env import DEVICE
 from src.logger import logger
 
@@ -32,6 +32,3 @@ class RerankerEngine(BaseEngine, RerankerConfig):
         scores, ranks = scores.tolist(), (-scores).argsort().argsort().tolist()
 
         return [(score, rank) for score, rank in zip(scores, ranks)]
-
-
-RERANKER_MAPPING: Dict[str, RerankerEngine] = {config.alias: RerankerEngine.from_config(config) for config in MODEL_CONFIG.reranker_configs.values()}
