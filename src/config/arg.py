@@ -6,8 +6,6 @@ from typing import Any, Dict
 import yaml
 from pydantic import BaseModel
 
-from src.logger import logger
-
 
 def parse_args() -> Dict[str, Any]:
     parser = ArgumentParser()
@@ -16,12 +14,10 @@ def parse_args() -> Dict[str, Any]:
 
     path = Path(args["config_path"])
     if not path.exists():
-        logger.error(f"Config file {args['config_path']} not found")
-        exit(1)
+        raise FileNotFoundError(f"Config file {args['config_path']} not found")
 
     if path.suffix not in [".yaml", ".yml"]:
-        logger.error(f"Config file {args['config_path']} must be in yaml format")
-        exit(1)
+        raise ValueError(f"Config file {args['config_path']} must be in yaml format")
 
     return args
 
@@ -59,14 +55,14 @@ class ModelConfig(BaseModel):
 
         for alias, kwargs in config.get("embedding", {}).items():
             if alias in embedding_configs:
-                logger.error(f"Duplicate embedding alias: {alias}")
-                exit(1)
+                raise ValueError(f"Duplicate embedding alias: {alias}")
+
             embedding_configs[alias] = EmbeddingConfig(alias=alias, **kwargs)
 
         for alias, kwargs in config.get("reranker", {}).items():
             if alias in reranker_configs:
-                logger.error(f"Duplicate reranker alias: {alias}")
-                exit(1)
+                raise ValueError(f"Duplicate reranker alias: {alias}")
+
             reranker_configs[alias] = RerankerConfig(alias=alias, **kwargs)
 
         return cls(

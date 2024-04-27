@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.api.auth.bearer import auth_secret_key
 from src.api.model.reranker import ListRerankerResponse, RerankerRequest, RerankerResponse, RerankModelCard, RerankObject
-from src.engine.reranker import RERANKER_MAPPING
+from src.config.gbl import RERANKER_MAPPING
 from src.logger import logger
 
 reranker_router = APIRouter()
