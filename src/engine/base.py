@@ -10,4 +10,8 @@ class BaseEngine(BaseModel):
 
     @abstractmethod
     def invoke(self, *args, **kwargs) -> Any:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement `invoke` method")
+
+    @abstractmethod
+    def stream(self, *args, **kwargs) -> Any:
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement `stream` method")
