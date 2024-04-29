@@ -10,7 +10,7 @@ from src.logger import logger
 embedding_router = APIRouter()
 
 
-@embedding_router.get("/embeddings", dependencies=[Depends(auth_secret_key)])
+@embedding_router.get("/embeddings", response_model=ListEmbeddingResponse, dependencies=[Depends(auth_secret_key)])
 async def list_embeddings() -> ListEmbeddingResponse:
     return ListEmbeddingResponse(
         embeddings=[

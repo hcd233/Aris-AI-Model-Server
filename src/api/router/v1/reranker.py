@@ -8,7 +8,7 @@ from src.logger import logger
 reranker_router = APIRouter()
 
 
-@reranker_router.get("/rerankers", dependencies=[Depends(auth_secret_key)])
+@reranker_router.get("/rerankers", response_model=ListRerankerResponse, dependencies=[Depends(auth_secret_key)])
 async def list_rerankers() -> ListRerankerResponse:
     return ListRerankerResponse(
         rerankers=[
@@ -23,7 +23,7 @@ async def list_rerankers() -> ListRerankerResponse:
 
 @reranker_router.post("/rerankers", response_model=RerankerResponse, dependencies=[Depends(auth_secret_key)])
 async def rerank(request: RerankerRequest) -> RerankerResponse:
-    pairs = []
+    logger.info(f"use model: {request.model}")
     if not request.query or not request.documents:
         return RerankerResponse(data=[], model=request.model)
 
