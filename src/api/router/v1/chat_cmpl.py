@@ -108,8 +108,8 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
     if isinstance(tool_list, list) and tool_list:
         try:
             tools = json.dumps([tool.function.model_dump(exclude_unset=True) for tool in tool_list], ensure_ascii=False)
-        except Exception as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid tools")
+        except Exception:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid tools")
     else:
         tools = ""
 
@@ -152,7 +152,8 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
 
     for i, response in enumerate(responses):
         if tools:
-            result = engine.template.format_tools.extract(response)
+            content = response["response_text"].strip().strip('"').strip("```")
+            result = engine.template.format_tools.extract(content)
         else:
             result = response["response_text"]
 
