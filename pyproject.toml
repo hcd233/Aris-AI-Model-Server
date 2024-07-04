@@ -18,6 +18,7 @@ cachetools = "^5.3.3"
 sentence-transformers = "^2.6.1"
 vllm = "0.4.1"
 sse-starlette = "^2.1.2"
+flake8 = "^7.1.0"
 
 
 [build-system]
