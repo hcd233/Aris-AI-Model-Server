@@ -1,4 +1,4 @@
-ARG BASE_IMAGE_TAG=develop-support_vllm_api_20240704-2407041837
+ARG BASE_IMAGE_TAG=master-2407051640
 
 # 自己的dockerfile制作的镜像
 FROM mirrors.tencent.com/zyp-fibona-ai/fibona-mas-base:${BASE_IMAGE_TAG}
