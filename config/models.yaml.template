@@ -10,3 +10,9 @@ reranker:
     path: ../../model/bge-reranker-v2-m3
     batch_size: 1
     max_seq_len: 1024
+
+Qwen1.5-MoE-A2.7B-Chat:
+    backend: mlx
+    path: ../../models/Qwen1.5-MoE-A2.7B-Chat-MLX/
+    template: qwen
+    max_seq_len: 16384
