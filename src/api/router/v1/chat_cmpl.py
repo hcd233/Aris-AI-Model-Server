@@ -1,6 +1,6 @@
 import json
 from time import time
-from typing import AsyncGenerator, Dict, List, Literal
+from typing import TYPE_CHECKING, AsyncGenerator, Dict, List, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sse_starlette import EventSourceResponse
@@ -25,6 +25,9 @@ from src.api.model.chat_cmpl import (
 from src.config.gbl import MODEL_CONTROLLER
 from src.logger import logger
 from src.utils.template import Role as DataRole
+
+if TYPE_CHECKING:
+    from src.engine.base import LLMResult
 
 chat_completion_router = APIRouter()
 
@@ -66,11 +69,12 @@ def _parse_chat_message(messages: List[ChatMessage]) -> List[Dict[Literal["role"
     return parsed_messages
 
 
-async def _wrap_stream_tokens(model: str, stream_tokens: AsyncGenerator[str, None]) -> AsyncGenerator[str, None]:
+async def _wrap_stream_tokens(model: str, llm_results: AsyncGenerator[LLMResult, None]) -> AsyncGenerator[str, None]:
     token_cnt = 0
     start_time = time()
 
-    async for new_token in stream_tokens:
+    async for res in llm_results:
+        new_token = res.response_text
         if not new_token:
             continue
         choice_data = ChatCompletionResponseStreamChoice(index=0, delta=ChatCompletionMessage(content=new_token), finish_reason=None)
@@ -125,7 +129,7 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
         if tools:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot stream function calls.")
 
-        stream_tokens = engine.stream(
+        results = engine.stream(
             parsed_messages,
             system,
             tools,
@@ -135,11 +139,11 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
             max_tokens=request.max_tokens,
         )
 
-        stream_events = _wrap_stream_tokens(request.model, stream_tokens)
+        stream_events = _wrap_stream_tokens(request.model, results)
 
         return EventSourceResponse(stream_events, media_type="text/event-stream")
 
-    responses = await engine.invoke(
+    results = await engine.invoke(
         parsed_messages,
         system,
         tools,
@@ -152,12 +156,12 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
     prompt_length, response_length = 0, 0
     choices = []
 
-    for i, response in enumerate(responses):
+    for i, res in enumerate(results):
         if tools:
-            content = response["response_text"].strip().strip('"').strip("```")
+            content = res["response_text"].strip().strip('"').strip("```")
             result = engine.template.format_tools.extract(content)
         else:
-            result = response["response_text"]
+            result = res["response_text"]
 
         if isinstance(result, tuple):
             name, arguments = result
@@ -166,12 +170,12 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
             finish_reason = Finish.TOOL
         else:
             response_message = ChatCompletionMessage(role=Role.ASSISTANT, content=result)
-            finish_reason = Finish.STOP if response["finish_reason"] == Finish.STOP else Finish.LENGTH
+            finish_reason = Finish.STOP if res["finish_reason"] == Finish.STOP else Finish.LENGTH
 
         choices.append(ChatCompletionResponseChoice(index=i, message=response_message, finish_reason=finish_reason))
 
-        prompt_length = response["prompt_length"]
-        response_length += response["response_length"]
+        prompt_length = res["prompt_length"]
+        response_length += res["response_length"]
 
     usage = ChatCompletionResponseUsage(
         prompt_tokens=prompt_length,

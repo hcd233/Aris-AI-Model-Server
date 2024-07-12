@@ -55,7 +55,7 @@ async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
         )
 
     try:
-        embeddings = engine.invoke(request.input)
+        results = engine.invoke(request.input)
     except Exception as e:
         logger.error(f"[Embedding] Model encode error {e}")
         raise HTTPException(
@@ -64,14 +64,7 @@ async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
         )
 
     return EmbeddingResponse(
-        data=[
-            EmbeddingObject(
-                embedding=embeddings[i],
-                index=i,
-                object="embedding",
-            )
-            for i in range(len(embeddings))
-        ],
+        data=[EmbeddingObject(**result) for result in results],
         model=request.model,
         object="list",
         usage=EmbeddingUsage(prompt_tokens=0, total_tokens=tokens),

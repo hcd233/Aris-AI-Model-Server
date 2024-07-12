@@ -1,5 +1,5 @@
 import uuid
-from typing import AsyncGenerator, AsyncIterator, Dict, List, Literal, Sequence, TypedDict
+from typing import AsyncGenerator, AsyncIterator, Dict, List, Sequence
 
 from transformers import AutoProcessor, AutoTokenizer, PreTrainedTokenizer, PreTrainedTokenizerFast
 from vllm import AsyncEngineArgs, AsyncLLMEngine, SamplingParams
@@ -8,14 +8,7 @@ from vllm.outputs import RequestOutput
 from src.config.model import VLLMConfig
 from src.utils.template import Template, get_template_and_fix_tokenizer
 
-from .base import BaseEngine
-
-
-class Response(TypedDict):
-    response_text: str
-    response_length: int
-    prompt_length: int
-    finish_reason: Literal["stop", "length"]
+from .base import BaseEngine, LLMResult
 
 
 class VLLMEngine(BaseEngine):
@@ -98,7 +91,7 @@ class VLLMEngine(BaseEngine):
         system: str | None = None,
         tools: str | None = None,
         **generate_kwargs,
-    ) -> List[Response]:
+    ) -> List[LLMResult]:
         final_output = None
         generator = await self._generate(messages=messages, system=system, tools=tools, **generate_kwargs)
         async for request_output in generator:
@@ -107,7 +100,7 @@ class VLLMEngine(BaseEngine):
         results = []
         for output in final_output.outputs:
             results.append(
-                Response(
+                LLMResult(
                     response_text=output.text,
                     response_length=len(output.token_ids),
                     prompt_length=len(final_output.prompt_token_ids),
@@ -123,11 +116,16 @@ class VLLMEngine(BaseEngine):
         system: str | None = None,
         tools: str | None = None,
         **generate_kwargs,
-    ) -> AsyncGenerator[str, None]:
+    ) -> AsyncGenerator[LLMResult, None]:
 
         generator = await self._generate(messages=messages, system=system, tools=tools, **generate_kwargs)
         generated_text = ""
         async for result in generator:
             delta_text = result.outputs[0].text[len(generated_text) :]
             generated_text = result.outputs[0].text
-            yield delta_text
+            yield LLMResult(
+                response_text=delta_text,
+                response_length=1,
+                prompt_length=len(result.prompt_token_ids),
+                finish_reason=result.outputs[0].finish_reason,
+            )

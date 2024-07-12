@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 
 from sentence_transformers import CrossEncoder
 
@@ -6,7 +6,7 @@ from src.config.arg import RerankerConfig
 from src.config.env import DEVICE
 from src.logger import logger
 
-from .base import BaseEngine
+from .base import BaseEngine, RerankerResult
 
 
 class RerankerEngine(BaseEngine, RerankerConfig):
@@ -19,7 +19,7 @@ class RerankerEngine(BaseEngine, RerankerConfig):
         logger.success(f"[RerankerEngine] load model from {config.path}")
         return cls(model=model, **config.model_dump())
 
-    def invoke(self, query: str, documents: List[str]) -> List[Tuple[float, float]]:
+    def invoke(self, query: str, documents: List[str]) -> List[RerankerResult]:
         scores = self.model.predict(
             [(query, doc) for doc in documents],
             batch_size=self.batch_size,
@@ -31,4 +31,4 @@ class RerankerEngine(BaseEngine, RerankerConfig):
         scores = scores.to("cpu").numpy()
         scores, ranks = scores.tolist(), (-scores).argsort().argsort().tolist()
 
-        return [(score, rank) for score, rank in zip(scores, ranks)]
+        return [RerankerResult(score=score, rank=rank) for score, rank in zip(scores, ranks)]

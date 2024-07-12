@@ -7,7 +7,7 @@ from src.config.arg import EmbeddingConfig
 from src.config.env import DEVICE
 from src.logger import logger
 
-from .base import BaseEngine
+from .base import BaseEngine, EmbeddingResult
 
 
 class EmbeddingEngine(BaseEngine, EmbeddingConfig):
@@ -23,7 +23,7 @@ class EmbeddingEngine(BaseEngine, EmbeddingConfig):
         logger.success(f"[EmbeddingEngine] load model from {config.path}")
         return cls(model=model, cache=cache, **config.model_dump())
 
-    def invoke(self, sentences: List[str]) -> List[List[int]]:
+    def invoke(self, sentences: List[str]) -> List[EmbeddingResult]:
         not_cached_ids = []
         not_cached_queries = []
         cached_ids = []
@@ -40,7 +40,7 @@ class EmbeddingEngine(BaseEngine, EmbeddingConfig):
         else:
             not_cached_queries = sentences
 
-        no_cached_embeds = self.model.encode(
+        no_cached_embeds: List[List[float]] = self.model.encode(
             not_cached_queries,
             batch_size=self.batch_size,
             normalize_embeddings=True,
@@ -59,4 +59,4 @@ class EmbeddingEngine(BaseEngine, EmbeddingConfig):
         else:
             embeddings = no_cached_embeds
 
-        return embeddings
+        return [EmbeddingResult(embedding=embedding, index=i, object="embedding") for i, embedding in enumerate(embeddings)]
