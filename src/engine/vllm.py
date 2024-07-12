@@ -11,7 +11,7 @@ from src.utils.template import Template, get_template_and_fix_tokenizer
 from .base import BaseEngine, LLMResult
 
 
-class VLLMEngine(BaseEngine):
+class VLLMEngine(BaseEngine, VLLMConfig):
     model: AsyncLLMEngine
     template: Template
     tokenizer: PreTrainedTokenizer | PreTrainedTokenizerFast

@@ -69,25 +69,27 @@ def _parse_chat_message(messages: List[ChatMessage]) -> List[Dict[Literal["role"
     return parsed_messages
 
 
-async def _wrap_stream_tokens(model: str, llm_results: AsyncGenerator[LLMResult, None]) -> AsyncGenerator[str, None]:
+async def _wrap_stream_tokens(model: str, results: AsyncGenerator["LLMResult", None]) -> AsyncGenerator[str, None]:
     token_cnt = 0
+    char_cnt = 0
     start_time = time()
 
-    async for res in llm_results:
-        new_token = res.response_text
+    async for res in results:
+        new_token = res["response_text"]
         if not new_token:
             continue
         choice_data = ChatCompletionResponseStreamChoice(index=0, delta=ChatCompletionMessage(content=new_token), finish_reason=None)
         chunk = ChatCompletionStreamResponse(model=model, choices=[choice_data])
 
         token_cnt += 1
+        char_cnt += len(new_token)
         yield json.dumps(chunk.model_dump(exclude_unset=True))
 
     choice_data = ChatCompletionResponseStreamChoice(index=0, delta=ChatCompletionMessage(), finish_reason=Finish.STOP)
     chunk = ChatCompletionStreamResponse(model=model, choices=[choice_data])
 
     elapsed_time = time() - start_time
-    logger.info(f"[Chat Completions] num_tokens: {token_cnt} num_seconds: {elapsed_time:.2f}s rate: {token_cnt / elapsed_time:.2f} tokens/sec")
+    logger.info(f"[Chat Completions] num_tokens: {token_cnt} num_chars: {char_cnt} num_seconds: {elapsed_time:.2f}s rate: {token_cnt / elapsed_time:.2f} tokens/sec {char_cnt / elapsed_time:.2f} chars/sec")
     yield json.dumps(chunk.model_dump(exclude_unset=True))
     yield "[DONE]"
 
