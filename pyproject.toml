@@ -15,11 +15,17 @@ loguru = "^0.7.2"
 numpy = "^1.26.4"
 tiktoken = "^0.6.0"
 cachetools = "^5.3.3"
-sentence-transformers = "^2.6.1"
-vllm = "0.4.1"
 sse-starlette = "^2.1.2"
 flake8 = "^7.1.0"
+sentence-transformers = { version = "^2.6.1", optional = true }
+vllm = { version = "0.4.1", optional = true }
+mlx-lm = { version = "^0.15", optional = true}
 
+[tool.poetry.extras]
+reranker = ["sentence-transformers"]
+embedding = ["sentence-transformers"]
+vllm = ["vllm"]
+mlx = ["mlx-lm"]
 
 [build-system]
 requires = ["poetry-core"]
