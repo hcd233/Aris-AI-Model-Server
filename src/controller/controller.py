@@ -59,7 +59,7 @@ class ModelController(BaseModel):
         try:
             from src.engine.reranker import RerankerEngine
         except ImportError:
-            logger.error("[ModelController] RerankerEngine import failed")
+            logger.error("[ModelController] RerankerEngine import failed, run `pip install sentence-transformers` or `poetry install -E reranker`")
             exit(1)
         return {config.alias: RerankerEngine.from_config(config) for config in configs}
 
@@ -70,7 +70,7 @@ class ModelController(BaseModel):
         try:
             from src.engine.embedding import EmbeddingEngine
         except ImportError:
-            logger.error("[ModelController] EmbeddingEngine import failed")
+            logger.error("[ModelController] EmbeddingEngine import failed, run `pip install sentence-transformers` or `poetry install -E embedding`")
             exit(1)
         return {config.alias: EmbeddingEngine.from_config(config) for config in configs}
 
@@ -82,6 +82,6 @@ class ModelController(BaseModel):
         try:
             from src.engine.vllm import VLLMEngine
         except ImportError:
-            logger.error("[ModelController] VLLMEngine import failed")
+            logger.error("[ModelController] VLLMEngine import failed, run `pip install vllm==0.4.1` or `poetry install -E vllm`")
             exit(1)
         return {config.alias: VLLMEngine.from_config(config) for config in configs}
