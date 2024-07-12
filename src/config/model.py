@@ -9,9 +9,9 @@ class BaseConfig(BaseModel):
 
 
 class LLMConfig(BaseConfig):
-
     template: str
     max_seq_len: int
+    backend: str
 
 
 class VLLMConfig(LLMConfig):
@@ -19,6 +19,10 @@ class VLLMConfig(LLMConfig):
     dtype: Literal["auto", "float16", "bfloat16"] = "auto"
     tensor_parallel_size: int
     gpu_memory_utilization: float
+
+
+class MLXConfig(LLMConfig):
+    backend: Literal["mlx"] = "mlx"
 
 
 class EmbeddingConfig(BaseConfig):
