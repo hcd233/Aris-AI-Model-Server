@@ -67,23 +67,31 @@ class MLXEngine(BaseEngine, MLXConfig):
 
         max_tokens = max_tokens or self.max_seq_len
         top_p = top_p or 1.0
+        temperature = temperature or 1.0
 
         output_generator = generate_step(
-            prompt=mx.array(prompt_token_ids), model=self.model, temp=temperature, repetition_penalty=repetition_penalty, top_p=top_p
+            prompt=mx.array(prompt_token_ids),
+            model=self.model,
+            temp=temperature,
+            repetition_penalty=repetition_penalty,
+            top_p=top_p,
+            repetition_context_size=None,
         )
 
         detokenizer = self.tokenizer.detokenizer
-
+        detokenizer.reset()
         cnt = 0
+        segment = ""
         for token, _ in output_generator:
             if token == self.tokenizer.eos_token_id or cnt >= max_tokens:
                 break
             detokenizer.add_token(token)
+            segment += detokenizer.last_segment
             # Yield the last segment if streaming
             yield RequestOutput(
                 outputs=[
                     StepOutput(
-                        text=detokenizer.text,
+                        text=segment,
                         token_ids=detokenizer.tokens,
                         finish_reason="length",
                     )
