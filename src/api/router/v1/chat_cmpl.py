@@ -22,7 +22,7 @@ from src.api.model.chat_cmpl import (
     ModelList,
     Role,
 )
-from src.config.gbl import VLLM_MAPPING
+from src.config.gbl import MODEL_CONTROLLER
 from src.logger import logger
 from src.utils.template import Role as DataRole
 
@@ -35,6 +35,8 @@ role_mapping = {
     Role.FUNCTION: DataRole.FUNCTION.value,
     Role.TOOL: DataRole.OBSERVATION.value,
 }
+
+llm_engine_mapping = MODEL_CONTROLLER.get_llm_engines()
 
 
 def _parse_chat_message(messages: List[ChatMessage]) -> List[Dict[Literal["role", "content"], str]]:
@@ -88,7 +90,7 @@ async def _wrap_stream_tokens(model: str, stream_tokens: AsyncGenerator[str, Non
 
 @chat_completion_router.get("/models", response_model=ModelList, dependencies=[Depends(auth_secret_key)])
 async def list_models():
-    model_cards = [ModelCard(id=alias) for alias in VLLM_MAPPING.keys()]
+    model_cards = [ModelCard(id=alias) for alias in llm_engine_mapping.keys()]
     return ModelList(data=model_cards)
 
 
@@ -114,7 +116,7 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
         tools = ""
 
     try:
-        engine = VLLM_MAPPING[request.model]
+        engine = llm_engine_mapping[request.model]
     except KeyError:
         logger.error(f"[Chat Completions] Invalid model name: {request.model}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid model name: {request.model}")

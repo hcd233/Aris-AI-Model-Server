@@ -4,10 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.api.auth.bearer import auth_secret_key
 from src.api.model.embedding import EmbeddingModelCard, EmbeddingObject, EmbeddingRequest, EmbeddingResponse, EmbeddingUsage, ListEmbeddingResponse
-from src.config.gbl import EMBEDDING_MAPPING, TOKENIZER
+from src.config.gbl import MODEL_CONTROLLER, TOKENIZER
 from src.logger import logger
 
 embedding_router = APIRouter()
+
+embedding_engine_mapping = MODEL_CONTROLLER.get_embedding_engines()
 
 
 @embedding_router.get("/embeddings", response_model=ListEmbeddingResponse, dependencies=[Depends(auth_secret_key)])
@@ -15,10 +17,10 @@ async def list_embeddings() -> ListEmbeddingResponse:
     return ListEmbeddingResponse(
         embeddings=[
             EmbeddingModelCard(
-                model=m,
-                max_length=EMBEDDING_MAPPING[m].max_seq_len,
+                model=engine.alias,
+                max_length=engine.max_seq_len,
             )
-            for m in EMBEDDING_MAPPING.keys()
+            for engine in embedding_engine_mapping.values()
         ]
     )
 
@@ -27,7 +29,7 @@ async def list_embeddings() -> ListEmbeddingResponse:
 async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
     logger.info(f"use model: {request.model}")
     try:
-        engine = EMBEDDING_MAPPING[request.model]
+        engine = embedding_engine_mapping[request.model]
     except KeyError:
         logger.error(f"[Embedding] Invalid model name: {request.model}")
         raise HTTPException(

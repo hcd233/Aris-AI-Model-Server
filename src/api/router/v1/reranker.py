@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.api.auth.bearer import auth_secret_key
 from src.api.model.reranker import ListRerankerResponse, RerankerRequest, RerankerResponse, RerankModelCard, RerankObject
-from src.config.gbl import RERANKER_MAPPING
+from src.config.gbl import MODEL_CONTROLLER
 from src.logger import logger
 
 reranker_router = APIRouter()
+
+reranker_engine_mapping = MODEL_CONTROLLER.get_reranker_engines()
 
 
 @reranker_router.get("/rerankers", response_model=ListRerankerResponse, dependencies=[Depends(auth_secret_key)])
@@ -16,7 +18,7 @@ async def list_rerankers() -> ListRerankerResponse:
                 model=engine.alias,
                 max_length=engine.max_seq_len,
             )
-            for engine in RERANKER_MAPPING.values()
+            for engine in reranker_engine_mapping.values()
         ]
     )
 
@@ -28,7 +30,7 @@ async def rerank(request: RerankerRequest) -> RerankerResponse:
         return RerankerResponse(data=[], model=request.model)
 
     try:
-        engine = RERANKER_MAPPING[request.model]
+        engine = reranker_engine_mapping[request.model]
     except KeyError:
         logger.error(f"[Embedding] Invalid model name: {request.model}")
         raise HTTPException(
