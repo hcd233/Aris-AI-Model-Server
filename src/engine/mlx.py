@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, AsyncGenerator, AsyncIterator, Dict, List, Literal, Sequence
+from typing import Any, AsyncGenerator, AsyncIterator, Dict, List, Literal, Sequence
 
 import mlx.core as mx
 from mlx_lm.tokenizer_utils import TokenizerWrapper
@@ -10,9 +10,6 @@ from src.config.model import MLXConfig
 from src.utils.template import Template, get_template_and_fix_tokenizer
 
 from .base import BaseEngine, LLMResult
-
-if TYPE_CHECKING:
-    import torch.nn as nn
 
 
 class StepOutput(BaseModel):
