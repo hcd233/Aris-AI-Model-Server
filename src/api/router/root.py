@@ -10,5 +10,5 @@ async def root() -> RootResponse:
     return RootResponse(
         code=0,
         status="success",
-        message="Welcome to Fibona Model API Server!",
+        message="Welcome to Aris AI Model Server!",
     )
