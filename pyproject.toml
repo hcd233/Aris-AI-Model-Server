@@ -19,13 +19,17 @@ sse-starlette = "^2.1.2"
 flake8 = "^7.1.0"
 sentence-transformers = { version = "^2.6.1", optional = true }
 vllm = { version = "0.4.1", optional = true }
-mlx-lm = { version = "^0.15", optional = true}
+mlx-lm = { version = "^0.15", optional = true }
+autoawq = { version = "^0.2.5", optional = true }
+auto_gptq = { version = "^0.7.1", optional = true }
 
 [tool.poetry.extras]
 reranker = ["sentence-transformers"]
 embedding = ["sentence-transformers"]
 vllm = ["vllm"]
 mlx = ["mlx-lm"]
+awq = ["autoawq"]
+gptq = ["auto_gptq"]
 
 [build-system]
 requires = ["poetry-core"]
