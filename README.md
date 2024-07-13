@@ -1,5 +1,3 @@
-Here's the English translation of the README:
-
 # Aris-AI-Model-Server
 
 [ English | [简体中文](README_zh.md) ]
