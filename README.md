@@ -6,7 +6,7 @@ Here's the English translation of the README:
 
 ## Introduction
 
-In AI application development, we often need to deploy multiple models to complete different tasks. For model dialogue services, we need LLM models, and for knowledge base retrieval services, we need Embedding and Reranker models. Therefore, `Aris-AI-Model-Server` was born, focusing on integrating multiple model services into one, providing users with simple and convenient model access capabilities. The project name comes from the character Aris in Blue Archive, as shown below:
+In AI application development, we often need to deploy multiple models to complete different tasks. For model dialogue services, we need LLM models, and for knowledge base retrieval services, we need Embedding and Reranker models. Therefore, `Aris-AI-Model-Server` was born, focusing on integrating multiple model services into one, providing users with simple and convenient model access capabilities. The project name comes from the character Aris in Blue Archive, as shown in the figure below:
 
 ---
 
