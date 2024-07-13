@@ -85,7 +85,6 @@ def quantize_autogptq(model_path: str, quant_path: str, alpaca_dataset: str, bat
     logger.info(f"[Load Model] loading model from {model_path}")
     model = AutoGPTQForCausalLM.from_pretrained(model_path, quantize_config=quantize_config, trust_remote_code=True)
     logger.success(f"[Load Model] load model from {model_path} successfully")
-    
     # Quantize
     logger.info("[Quantize Model] quantizing model...")
     model.quantize(examples=dataset, batch_size=batch_size)
