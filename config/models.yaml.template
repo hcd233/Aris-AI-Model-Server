@@ -14,14 +14,14 @@ reranker:
 llm:
   qwen2-7b-instruct-mlx:
     backend: mlx
-    path: Qwen/Qwen2-7B-Instruct-MLX
-    template: qwen
+    path: Aris-AI/Aris-Qwen1.5-14B-Chat-Agent-DPO-16K-MLX-20240531
+    template: aris
     max_seq_len: 16384
 
   qwen2-7b-instruct-awq:
-    path: Qwen/Qwen2-7B-Instruct-AWQ
+    path: Aris-AI/Aris-Qwen1.5-14B-Chat-Agent-DPO-16K-AWQ-4bit-20240531
     backend: vllm
-    template: qwen
+    template: aris
     max_seq_len: 16384
     dtype: auto
     tensor_parallel_size: 1
