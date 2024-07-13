@@ -9,4 +9,5 @@ RUN apt-get update && apt-get install -y python3.11 python3-pip && pip install -
 RUN ln -s /usr/bin/python3.11 /usr/bin/python
 
 RUN pip install poetry
-RUN poetry install -E vllm -E reranker -E embedding -E awq -E gptq --no-root
+RUN poetry install --no-root
+# RUN poetry install -E vllm -E reranker -E embedding -E awq -E gptq --no-root
