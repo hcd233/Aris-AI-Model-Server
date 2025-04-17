@@ -2,13 +2,13 @@ import uuid
 from typing import AsyncGenerator, AsyncIterator, Dict, List, Sequence
 
 from transformers import AutoProcessor, AutoTokenizer, PreTrainedTokenizer, PreTrainedTokenizerFast
-from vllm import AsyncEngineArgs, AsyncLLMEngine, SamplingParams
+from src.engine.llm.vllm import AsyncEngineArgs, AsyncLLMEngine, SamplingParams
 from vllm.outputs import RequestOutput
 
 from src.config.model import VLLMConfig
 from src.utils.template import Template, get_template_and_fix_tokenizer
 
-from .base import BaseEngine, LLMResult
+from ..base import BaseEngine, LLMResult
 
 
 class VLLMEngine(BaseEngine, VLLMConfig):

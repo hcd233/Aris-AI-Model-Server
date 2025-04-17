@@ -6,14 +6,14 @@ from src.config.arg import RerankerConfig
 from src.config.env import DEVICE
 from src.logger import logger
 
-from .base import BaseEngine, RerankerResult
+from ..base import BaseEngine, RerankerResult
 
 
-class RerankerEngine(BaseEngine, RerankerConfig):
+class SentenceTransformerRerankerEngine(BaseEngine, RerankerConfig):
     model: CrossEncoder
 
     @classmethod
-    def from_config(cls, config: RerankerConfig) -> "RerankerEngine":
+    def from_config(cls, config: RerankerConfig) -> "SentenceTransformerRerankerEngine":
         model = CrossEncoder(config.path, max_length=config.max_seq_len, device=DEVICE)
 
         logger.success(f"[RerankerEngine] load model from {config.path}")
