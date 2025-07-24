@@ -27,7 +27,7 @@ async def list_rerankers() -> ListRerankerResponse:
 
 
 @reranker_router.post("/rerank", response_model=RerankResponse, dependencies=[Depends(auth_secret_key)])
-async def cohere_rerank(request: RerankRequest) -> RerankResponse:
+async def rerank(request: RerankRequest) -> RerankResponse:
     logger.info(f"[Reranker] use model: {request.model}")
     if not request.query or not request.documents:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid request, query and documents are required")
