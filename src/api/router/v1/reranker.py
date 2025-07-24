@@ -43,10 +43,8 @@ async def cohere_rerank(request: RerankerRequest) -> RerankerResponse:
     results = engine.invoke(request.query, request.documents)
     logger.debug(f"[Cohere Rerank] result: {results}")
 
-    # 按相关性得分排序（降序）
     sorted_results = sorted(enumerate(results), key=lambda x: x[1]["relevent_score"], reverse=True)
     
-    # 如果指定了top_n，则只返回前top_n个结果
     if request.top_n is not None:
         sorted_results = sorted_results[:request.top_n]
     

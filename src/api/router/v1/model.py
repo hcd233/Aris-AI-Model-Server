@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from src.api.auth.bearer import auth_secret_key
 from src.api.model.chat_cmpl import ModelCard, ModelList
