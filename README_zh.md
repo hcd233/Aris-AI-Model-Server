@@ -167,6 +167,12 @@ cp config/models.yaml.template models.yaml
 cp config/.env.template .env
 ```
 
+### 应用环境变量
+
+```bash
+source .env
+```
+
 ### 启动API
 
 ```bash

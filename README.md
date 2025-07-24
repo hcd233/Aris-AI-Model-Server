@@ -167,6 +167,12 @@ cp config/models.yaml.template models.yaml
 cp config/.env.template .env
 ```
 
+### Apply Environment Variables
+
+```bash
+source .env
+```
+
 ### Start API
 
 ```bash
