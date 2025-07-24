@@ -3,9 +3,13 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 
-class Document(BaseModel):
-    content: str
-    metadata: Dict[str, Any]
+class RerankModelCard(BaseModel):
+    model: str
+    max_length: int
+
+
+class ListRerankerResponse(BaseModel):
+    rerankers: List[RerankModelCard]
 
 
 # Cohere协议的请求格式
