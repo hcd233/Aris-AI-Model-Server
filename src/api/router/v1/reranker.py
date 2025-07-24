@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.api.auth.bearer import auth_secret_key
-from src.api.model.reranker import ListRerankerResponse, RerankerRequest, RerankerResponse, RerankModelCard, RerankObject
+from src.api.model.reranker import (ListRerankerResponse, RerankerRequest,
+                                    RerankerResponse, RerankerResult,
+                                    RerankModelCard, RerankObject)
 from src.config.gbl import MODEL_CONTROLLER
 from src.logger import logger
 
@@ -23,35 +25,37 @@ async def list_rerankers() -> ListRerankerResponse:
     )
 
 
-@reranker_router.post("/rerankers", response_model=RerankerResponse, dependencies=[Depends(auth_secret_key)])
-async def rerank(request: RerankerRequest) -> RerankerResponse:
-    logger.info(f"use model: {request.model}")
+@reranker_router.post("/rerank", response_model=RerankerResponse, dependencies=[Depends(auth_secret_key)])
+async def cohere_rerank(request: RerankerRequest) -> RerankerResponse:
+    logger.info(f"[Cohere] use model: {request.model}")
     if not request.query or not request.documents:
-        return RerankerResponse(data=[], model=request.model)
+        return RerankerResponse.create_response([])
 
     try:
         engine = reranker_engine_mapping[request.model]
     except KeyError:
-        logger.error(f"[Embedding] Invalid model name: {request.model}")
+        logger.error(f"[Cohere Rerank] Invalid model name: {request.model}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Invalid model name: {request.model}",
         )
-    results = engine.invoke(request.query, [doc.content for doc in request.documents])
+    
+    results = engine.invoke(request.query, request.documents)
+    logger.debug(f"[Cohere Rerank] result: {results}")
 
-    logger.debug(f"[Rerank] result: {results}")
+    # 按相关性得分排序（降序）
+    sorted_results = sorted(enumerate(results), key=lambda x: x[1]["relevent_score"], reverse=True)
+    
+    # 如果指定了top_n，则只返回前top_n个结果
+    if request.top_n is not None:
+        sorted_results = sorted_results[:request.top_n]
+    
+    cohere_results = [
+        RerankerResult(
+            index=original_index,
+            relevance_score=round(result["relevent_score"], 6)
+        )
+        for original_index, result in sorted_results
+    ]
 
-    return RerankerResponse(
-        data=sorted(
-            [
-                RerankObject(
-                    doc=doc,
-                    score=round(res["score"], 6),
-                    rank=res["rank"],
-                )
-                for doc, res in zip(request.documents, results)
-            ],
-            key=lambda x: x.rank,
-        ),
-        model=request.model,
-    )
+    return RerankerResponse.create_response(cohere_results)

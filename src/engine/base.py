@@ -19,8 +19,8 @@ class BaseEngine(BaseModel):
 
 
 class RerankerResult(TypedDict):
-    score: float
-    rank: int
+    index: int
+    relevent_score: float
 
 
 class EmbeddingResult(TypedDict):

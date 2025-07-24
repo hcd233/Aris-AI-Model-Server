@@ -6,22 +6,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sse_starlette import EventSourceResponse
 
 from src.api.auth.bearer import auth_secret_key
-from src.api.model.chat_cmpl import (
-    ChatCompletionMessage,
-    ChatCompletionRequest,
-    ChatCompletionResponse,
-    ChatCompletionResponseChoice,
-    ChatCompletionResponseStreamChoice,
-    ChatCompletionResponseUsage,
-    ChatCompletionStreamResponse,
-    ChatMessage,
-    Finish,
-    Function,
-    FunctionCall,
-    ModelCard,
-    ModelList,
-    Role,
-)
+from src.api.model.chat_cmpl import (ChatCompletionMessage,
+                                     ChatCompletionRequest,
+                                     ChatCompletionResponse,
+                                     ChatCompletionResponseChoice,
+                                     ChatCompletionResponseStreamChoice,
+                                     ChatCompletionResponseUsage,
+                                     ChatCompletionStreamResponse, ChatMessage,
+                                     Finish, Function, FunctionCall, Role)
 from src.config.gbl import MODEL_CONTROLLER
 from src.logger import logger
 from src.utils.template import Role as DataRole
@@ -92,12 +84,6 @@ async def _wrap_stream_tokens(model: str, results: AsyncGenerator["LLMResult", N
     logger.info(f"[Chat Completions] num_tokens: {token_cnt} num_chars: {char_cnt} num_seconds: {elapsed_time:.2f}s rate: {token_cnt / elapsed_time:.2f} tokens/sec {char_cnt / elapsed_time:.2f} chars/sec")
     yield json.dumps(chunk.model_dump(exclude_unset=True))
     yield "[DONE]"
-
-
-@chat_completion_router.get("/models", response_model=ModelList, dependencies=[Depends(auth_secret_key)])
-async def list_models():
-    model_cards = [ModelCard(id=alias) for alias in llm_engine_mapping.keys()]
-    return ModelList(data=model_cards)
 
 
 @chat_completion_router.post("/chat/completions", response_model=ChatCompletionResponse, dependencies=[Depends(auth_secret_key)])

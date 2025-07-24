@@ -17,6 +17,8 @@ In AI application development, we often need to deploy multiple models to comple
 
 ## Changelog
 
+- [2025-07-24] Rerank API aligned with Cohere protocol.
+
 - [2024-07-13] Aris-AI-Model-Server officially open-sourced.
 
 - [2024-06-23] We released the [Aris-14B-Chat series models](https://huggingface.co/collections/Aris-AI/aris-chat-arcturus-6642fd11069310a4467db222), which are based on [Qwen1.5-14B-Chat](https://huggingface.co/Qwen/Qwen1.5-14B-Chat) and have undergone SFT and DPO on our private dataset of 140K entries. When using this model, please comply with the Qwen open-source license.
@@ -44,14 +46,14 @@ In AI application development, we often need to deploy multiple models to comple
 
 ## API Interfaces
 
-| Route | Request Method | Authentication | OpenAI Compatible | Description |
+| Route | Request Method | Authentication | Protocol | Description |
 | --- | --- | --- | --- | --- |
-| / | GET | ❌ | ❌ | Root directory |
-| /v1/embeddings | GET | ✅ | ❌ | Get all Embedding models |
-| /v1/embeddings | POST | ✅ | ✅ | Call Embedding for text embedding |
-| /v1/rerankers | GET | ✅ | ❌ | Get all Reranker models |
-| /v1/rerankers | POST | ✅ | ❌ | Call Reranker for document reranking |
-| /v1/models | GET | ✅ | ✅ | Get all LLMs |
+| / | GET | ❌ | None | Root directory |
+| /v1/embeddings | GET | ✅ | None | Get all Embedding models |
+| /v1/embeddings | POST | ✅ | OpenAI | Call Embedding for text embedding |
+| /v1/rerankers | GET | ✅ | None | Get all Reranker models |
+| /v1/rerank | POST | ✅ | Cohere | Call Reranker for document reranking |
+| /v1/models | GET | ✅ | OpenAI | Get all models |
 | /v1/chat/completions | POST | ✅ | ✅ | Call LLM for dialogue generation |
 
 ## Project Structure

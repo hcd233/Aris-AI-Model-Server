@@ -17,6 +17,8 @@
 
 ## 更新日志
 
+- [2025-07-24] Rerank API对齐Cohere协议。
+
 - [2024-07-13] Aris-AI-Model-Server正式开源。
 
 - [2024-06-23] 我们发布了[Aris-14B-Chat系列模型](https://huggingface.co/collections/Aris-AI/aris-chat-arcturus-6642fd11069310a4467db222)，该模型基于[Qwen1.5-14B-Chat](https://huggingface.co/Qwen/Qwen1.5-14B-Chat)在我们的140K条私有数据集进行了SFT和DPO。在使用该模型时,请遵守Qwen开源协议。
@@ -44,15 +46,15 @@
 
 ## API接口
 
-| 路由 | 请求方法 | 鉴权 | OpenAI Compatible| 描述 |
+| 路由 | 请求方法 | 鉴权 | 协议| 描述 |
 | --- | --- | --- | --- | --- |
-| / | GET | ❌ | ❌ | 根目录 |
-| /v1/embeddings | GET | ✅ | ❌ | 获取所有Embedding模型 |
-| /v1/embeddings | POST | ✅ | ✅ | 调用Embedding进行文本嵌入 |
-| /v1/rerankers | GET | ✅ | ❌ | 获取所有Reranker模型 |
-| /v1/rerankers | POST | ✅ | ❌ | 调用Reranker进行文档重排 |
-| /v1/models | GET | ✅ | ✅ | 获取所有LLM |
-| /v1/chat/completions | POST | ✅ | ✅ | 调用LLM进行对话生成 |
+| / | GET | ❌ | 无 | 根目录 |
+| /v1/embeddings | GET | ✅ | 无 | 获取所有Embedding模型 |
+| /v1/embeddings | POST | ✅ | OpenAI | 调用Embedding进行文本嵌入 |
+| /v1/rerankers | GET | ✅ | 无 | 获取所有Reranker模型 |
+| /v1/rerank | POST | ✅ | Cohere | 调用Reranker进行文档重排 |
+| /v1/models | GET | ✅ | OpenAI | 获取所有模型 |
+| /v1/chat/completions | POST | ✅ | OpenAI | 调用LLM进行对话生成 |
 
 ## 项目结构
 
