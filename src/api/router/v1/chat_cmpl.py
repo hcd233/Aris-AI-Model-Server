@@ -14,7 +14,7 @@ from src.api.model.chat_cmpl import (ChatCompletionMessage,
                                      ChatCompletionResponseUsage,
                                      ChatCompletionStreamResponse, ChatMessage,
                                      Finish, Function, FunctionCall, Role)
-from src.config.gbl import MODEL_CONTROLLER
+from src.config.gbl import LLM_ENGINE_MAPPING
 from src.logger import logger
 from src.utils.template import Role as DataRole
 
@@ -31,7 +31,6 @@ role_mapping = {
     Role.TOOL: DataRole.OBSERVATION.value,
 }
 
-llm_engine_mapping = MODEL_CONTROLLER.get_llm_engines()
 
 
 def _parse_chat_message(messages: List[ChatMessage]) -> List[Dict[Literal["role", "content"], str]]:
@@ -108,7 +107,7 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
         tools = ""
 
     try:
-        engine = llm_engine_mapping[request.model]
+        engine = LLM_ENGINE_MAPPING[request.model]
     except KeyError:
         logger.error(f"[Chat Completions] Invalid model name: {request.model}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid model name: {request.model}")

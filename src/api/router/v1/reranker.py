@@ -4,12 +4,10 @@ from src.api.auth.bearer import auth_secret_key
 from src.api.model.reranker import (ListRerankerResponse, RerankerRequest,
                                     RerankerResponse, RerankerResult,
                                     RerankModelCard)
-from src.config.gbl import MODEL_CONTROLLER
+from src.config.gbl import RERANKER_ENGINE_MAPPING
 from src.logger import logger
 
 reranker_router = APIRouter()
-
-reranker_engine_mapping = MODEL_CONTROLLER.get_reranker_engines()
 
 
 @reranker_router.get("/rerankers", response_model=ListRerankerResponse, dependencies=[Depends(auth_secret_key)])
@@ -20,7 +18,7 @@ async def list_rerankers() -> ListRerankerResponse:
                 model=engine.alias,
                 max_length=engine.max_seq_len,
             )
-            for engine in reranker_engine_mapping.values()
+            for engine in RERANKER_ENGINE_MAPPING.values()
         ]
     )
 
@@ -32,7 +30,7 @@ async def cohere_rerank(request: RerankerRequest) -> RerankerResponse:
         return RerankerResponse.create_response([])
 
     try:
-        engine = reranker_engine_mapping[request.model]
+        engine = RERANKER_ENGINE_MAPPING[request.model]
     except KeyError:
         logger.error(f"[Cohere Rerank] Invalid model name: {request.model}")
         raise HTTPException(

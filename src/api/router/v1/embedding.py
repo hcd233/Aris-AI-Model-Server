@@ -3,14 +3,13 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.api.auth.bearer import auth_secret_key
-from src.api.model.embedding import EmbeddingModelCard, EmbeddingObject, EmbeddingRequest, EmbeddingResponse, EmbeddingUsage, ListEmbeddingResponse
-from src.config.gbl import MODEL_CONTROLLER, TOKENIZER
+from src.api.model.embedding import (EmbeddingModelCard, EmbeddingObject,
+                                     EmbeddingRequest, EmbeddingResponse,
+                                     EmbeddingUsage, ListEmbeddingResponse)
+from src.config.gbl import EMBEDDING_ENGINE_MAPPING, TOKENIZER
 from src.logger import logger
 
 embedding_router = APIRouter()
-
-embedding_engine_mapping = MODEL_CONTROLLER.get_embedding_engines()
-
 
 @embedding_router.get("/embeddings", response_model=ListEmbeddingResponse, dependencies=[Depends(auth_secret_key)])
 async def list_embeddings() -> ListEmbeddingResponse:
@@ -20,7 +19,7 @@ async def list_embeddings() -> ListEmbeddingResponse:
                 model=engine.alias,
                 max_length=engine.max_seq_len,
             )
-            for engine in embedding_engine_mapping.values()
+            for engine in EMBEDDING_ENGINE_MAPPING.values()
         ]
     )
 
@@ -29,7 +28,7 @@ async def list_embeddings() -> ListEmbeddingResponse:
 async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
     logger.info(f"use model: {request.model}")
     try:
-        engine = embedding_engine_mapping[request.model]
+        engine = EMBEDDING_ENGINE_MAPPING[request.model]
     except KeyError:
         logger.error(f"[Embedding] Invalid model name: {request.model}")
         raise HTTPException(
