@@ -13,7 +13,7 @@ class ListRerankerResponse(BaseModel):
 
 
 # Cohere协议的请求格式
-class RerankerRequest(BaseModel):
+class RerankRequest(BaseModel):
     model: str
     query: str
     documents: List[str]
@@ -21,7 +21,7 @@ class RerankerRequest(BaseModel):
 
 
 # Cohere协议的响应格式
-class RerankerResult(BaseModel):
+class RerankResult(BaseModel):
     index: int
     relevance_score: float
 
@@ -34,12 +34,12 @@ class BilledUnits(BaseModel):
     search_units: int
 
 
-class Meta(BaseModel):
+class RerankMeta(BaseModel):
     api_version: ApiVersion
     billed_units: BilledUnits
 
 
-class RerankerResponse(BaseModel):
-    results: List[RerankerResult]
+class RerankResponse(BaseModel):
+    results: List[RerankResult]
     id: str
-    meta: Meta
+    meta: RerankMeta

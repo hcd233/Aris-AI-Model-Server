@@ -1,9 +1,12 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.api.auth.bearer import auth_secret_key
-from src.api.model.reranker import (ListRerankerResponse, RerankerRequest,
-                                    RerankerResponse, RerankerResult,
-                                    RerankModelCard)
+from src.api.model.reranker import (ApiVersion, BilledUnits,
+                                    ListRerankerResponse, RerankMeta,
+                                    RerankModelCard, RerankRequest,
+                                    RerankResponse, RerankResult)
 from src.config.gbl import RERANKER_ENGINE_MAPPING
 from src.logger import logger
 
@@ -23,11 +26,11 @@ async def list_rerankers() -> ListRerankerResponse:
     )
 
 
-@reranker_router.post("/rerank", response_model=RerankerResponse, dependencies=[Depends(auth_secret_key)])
-async def cohere_rerank(request: RerankerRequest) -> RerankerResponse:
+@reranker_router.post("/rerank", response_model=RerankResponse, dependencies=[Depends(auth_secret_key)])
+async def cohere_rerank(request: RerankRequest) -> RerankResponse:
     logger.info(f"[Cohere] use model: {request.model}")
     if not request.query or not request.documents:
-        return RerankerResponse.create_response([])
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid request, query and documents are required")
 
     try:
         engine = RERANKER_ENGINE_MAPPING[request.model]
@@ -47,11 +50,18 @@ async def cohere_rerank(request: RerankerRequest) -> RerankerResponse:
         sorted_results = sorted_results[:request.top_n]
 
     cohere_results = [
-        RerankerResult(
+        RerankResult(
             index=original_index,
             relevance_score=round(result["relevent_score"], 6)
         )
         for original_index, result in sorted_results
     ]
 
-    return RerankerResponse.create_response(cohere_results)
+    return RerankResponse(
+        results=cohere_results,
+        id=uuid.uuid4().hex,
+        meta=RerankMeta(
+            api_version=ApiVersion(version="1"),
+            billed_units=BilledUnits(search_units=1),
+        ),
+    )
