@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.api.auth.bearer import auth_secret_key
 from src.api.model.reranker import (ListRerankerResponse, RerankerRequest,
                                     RerankerResponse, RerankerResult,
-                                    RerankModelCard, RerankObject)
+                                    RerankModelCard)
 from src.config.gbl import MODEL_CONTROLLER
 from src.logger import logger
 
@@ -39,15 +39,15 @@ async def cohere_rerank(request: RerankerRequest) -> RerankerResponse:
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Invalid model name: {request.model}",
         )
-    
+
     results = engine.invoke(request.query, request.documents)
     logger.debug(f"[Cohere Rerank] result: {results}")
 
     sorted_results = sorted(enumerate(results), key=lambda x: x[1]["relevent_score"], reverse=True)
-    
+
     if request.top_n is not None:
         sorted_results = sorted_results[:request.top_n]
-    
+
     cohere_results = [
         RerankerResult(
             index=original_index,
