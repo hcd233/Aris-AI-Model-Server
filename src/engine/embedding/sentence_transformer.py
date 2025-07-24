@@ -7,7 +7,7 @@ from src.config.arg import EmbeddingConfig
 from src.config.env import DEVICE
 from src.logger import logger
 
-from .base import BaseEngine, EmbeddingResult
+from ..base import BaseEngine, EmbeddingResult
 
 
 class EmbeddingEngine(BaseEngine, EmbeddingConfig):
@@ -60,3 +60,6 @@ class EmbeddingEngine(BaseEngine, EmbeddingConfig):
             embeddings = no_cached_embeds
 
         return [EmbeddingResult(embedding=embedding, index=i, object="embedding") for i, embedding in enumerate(embeddings)]
+
+    def stream(self, sentences: List[str]) -> List[EmbeddingResult]:
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement `stream` method")

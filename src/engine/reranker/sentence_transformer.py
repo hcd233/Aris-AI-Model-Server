@@ -32,3 +32,6 @@ class SentenceTransformerRerankerEngine(BaseEngine, RerankerConfig):
         scores, ranks = scores.tolist(), (-scores).argsort().argsort().tolist()
 
         return [RerankerResult(score=score, rank=rank) for score, rank in zip(scores, ranks)]
+
+    def stream(self, query: str, documents: List[str]) -> List[RerankerResult]:
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement `stream` method")

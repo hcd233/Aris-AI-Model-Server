@@ -4,15 +4,14 @@ from typing import TYPE_CHECKING, Dict, Union
 import yaml
 from pydantic import BaseModel
 
-from src.config.model import (EmbeddingConfig, LLMConfig, MLXConfig,
-                              RerankerConfig, VLLMConfig)
+from src.config.model import EmbeddingConfig, LLMConfig, MLXConfig, RerankerConfig, VLLMConfig
 from src.logger import logger
 
 if TYPE_CHECKING:
-    from src.engine.embedding import EmbeddingEngine
+    from src.engine.embedding.sentence_transformer import EmbeddingEngine
     from src.engine.llm.mlx import MLXEngine
-    from src.engine.reranker.sentence_transformer import SentenceTransformerRerankerEngine
     from src.engine.llm.vllm import VLLMEngine
+    from src.engine.reranker.sentence_transformer import SentenceTransformerRerankerEngine
 
 
 class ModelController(BaseModel):
@@ -72,7 +71,7 @@ class ModelController(BaseModel):
         if not configs:
             return {}
         try:
-            from src.engine.embedding import EmbeddingEngine
+            from src.engine.embedding.sentence_transformer import EmbeddingEngine
         except ImportError:
             logger.error("[ModelController] EmbeddingEngine import failed, run `pip install sentence-transformers` or `poetry install -E embedding`")
             exit(1)
