@@ -1,3 +1,5 @@
+import torch
+
 from typing import List
 
 from sentence_transformers import CrossEncoder
@@ -20,16 +22,17 @@ class SentenceTransformerRerankerEngine(BaseEngine, RerankerConfig):
         return cls(model=model, **config.model_dump())
 
     def invoke(self, query: str, documents: List[str]) -> List[RerankerResult]:
-        scores = self.model.predict(
-            [(query, doc) for doc in documents],
-            batch_size=self.batch_size,
-            show_progress_bar=True,
-            activation_fct=None,  # NOTE sentence_transformers CrossEncoder will use sigmoid to normalize the score
-            convert_to_tensor=True,
-            convert_to_numpy=False,
-        )
-        scores = scores.to("cpu").numpy()
-        scores, indexes = scores.tolist(), (-scores).argsort().argsort().tolist()
+        with torch.inference_mode():  # 使
+            scores = self.model.predict(
+                [(query, doc) for doc in documents],
+                batch_size=self.batch_size,
+                show_progress_bar=True,
+                activation_fct=None,  # NOTE sentence_transformers CrossEncoder will use sigmoid to normalize the score
+                convert_to_tensor=True,
+                convert_to_numpy=False,
+            )
+            scores = scores.to("cpu").numpy()
+            scores, indexes = scores.tolist(), (-scores).argsort().argsort().tolist()
 
         return [RerankerResult(index=index, relevent_score=score) for score, index in zip(scores, indexes)]
 
