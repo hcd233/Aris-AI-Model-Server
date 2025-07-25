@@ -112,7 +112,7 @@ class MLXEngine(BaseEngine, MLXConfig):
             prompt_token_ids=prompt_token_ids,
         )
 
-    async def _invoke(
+    async def invoke(
         self,
         messages: Sequence[Dict[str, str]],
         system: str | None = None,

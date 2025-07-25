@@ -86,7 +86,7 @@ class VLLMEngine(BaseEngine, VLLMConfig):
 
         return output_generator
 
-    async def _invoke(
+    async def invoke(
         self,
         messages: Sequence[Dict[str, str]],
         system: str | None = None,

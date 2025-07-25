@@ -129,7 +129,7 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
 
         return EventSourceResponse(stream_events, media_type="text/event-stream")
 
-    results = await engine._invoke(
+    results = await engine.invoke(
         parsed_messages,
         system,
         tools,
