@@ -31,13 +31,18 @@ class EmbeddingConfig(BaseConfig):
     max_seq_len: int
 
 
-class SentenceTransformerRerankerConfig(BaseConfig):
+class RerankerConfig(BaseConfig):
+    backend: str
+    batch_size: int
+    max_seq_len: int
+
+class SentenceTransformerRerankerConfig(RerankerConfig):
     backend: Literal["sentence_transformer"] = "sentence_transformer"
     batch_size: int
     max_seq_len: int
 
 
-class InfinityRerankerConfig(BaseConfig):
+class InfinityRerankerConfig(RerankerConfig):
     backend: Literal["infinity"] = "infinity"
     engine: Literal["torch"] = "torch"
     batch_size: int

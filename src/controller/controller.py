@@ -5,7 +5,7 @@ import yaml
 from pydantic import BaseModel
 
 from src.config.model import (EmbeddingConfig, InfinityRerankerConfig,
-                              LLMConfig, MLXConfig,
+                              LLMConfig, MLXConfig, RerankerConfig,
                               SentenceTransformerRerankerConfig, VLLMConfig)
 from src.logger import logger
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class ModelController(BaseModel):
     llm_configs: Dict[str, LLMConfig]
     embedding_configs: Dict[str, EmbeddingConfig]
-    reranker_configs: Dict[str, SentenceTransformerRerankerConfig]
+    reranker_configs: Dict[str, RerankerConfig]
 
     @classmethod
     def from_yaml(cls, path: PathLike) -> "ModelController":
