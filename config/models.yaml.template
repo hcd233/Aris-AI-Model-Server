@@ -7,9 +7,11 @@ embedding:
 
 reranker:
   bge-reranker-v2-m3:
+    backend: sentence_transformers
     path: BAAI/bge-reranker-v2-m3
     batch_size: 4
     max_seq_len: 512
+    dtype: bfloat16
 
 llm:
   qwen2-7b-instruct-mlx:

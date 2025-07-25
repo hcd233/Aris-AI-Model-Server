@@ -1,23 +1,25 @@
 import asyncio
 from typing import List
 
+import torch
 from cachetools import LRUCache
 from sentence_transformers import SentenceTransformer
 
-from src.config.arg import EmbeddingConfig
 from src.config.env import DEVICE
+from src.config.model import SentenceTransformerRerankerConfig
 from src.logger import logger
 
 from ..base import BaseEngine, EmbeddingResult
 
 
-class SentenceTransformerEmbeddingEngine(BaseEngine, EmbeddingConfig):
+class SentenceTransformerEmbeddingEngine(BaseEngine, SentenceTransformerRerankerConfig):
     model: SentenceTransformer
     cache: LRUCache | None
 
     @classmethod
-    def from_config(cls, config: EmbeddingConfig) -> "SentenceTransformerEmbeddingEngine":
-        model = SentenceTransformer(config.path, device=DEVICE)
+    def from_config(cls, config: SentenceTransformerRerankerConfig) -> "SentenceTransformerEmbeddingEngine":
+        dtype_mapping = {"float32": torch.float32, "float16": torch.float16, "bfloat16": torch.bfloat16}
+        model = SentenceTransformer(config.path, device=DEVICE, model_kwargs={"torch_dtype": dtype_mapping[config.dtype]})
         model.max_seq_length = config.max_seq_len
         cache = LRUCache(maxsize=1000) if config.enable_cache else None
 

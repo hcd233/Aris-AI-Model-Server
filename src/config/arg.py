@@ -2,8 +2,6 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Dict
 
-from pydantic import BaseModel
-
 
 def parse_args() -> Dict[str, Any]:
     parser = ArgumentParser()
@@ -20,19 +18,5 @@ def parse_args() -> Dict[str, Any]:
     return args
 
 
-class LLMConfig(BaseModel):
-    pass
-
-
-class EmbeddingConfig(BaseModel):
-    alias: str
-    path: str
-    enable_cache: bool
-    batch_size: int
-    max_seq_len: int
-
-
-class RerankerConfig(BaseModel):
-    pass
 
 
