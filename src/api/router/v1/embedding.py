@@ -11,6 +11,7 @@ from src.logger import logger
 
 embedding_router = APIRouter()
 
+
 @embedding_router.get("/embeddings", response_model=ListEmbeddingResponse, dependencies=[Depends(auth_secret_key)])
 async def list_embeddings() -> ListEmbeddingResponse:
     return ListEmbeddingResponse(
@@ -54,7 +55,7 @@ async def embed(request: EmbeddingRequest) -> EmbeddingResponse:
         )
 
     try:
-        results = engine.invoke(request.input)
+        results = await engine.invoke(request.input)
     except Exception as e:
         logger.error(f"[Embedding] Model encode error {e}")
         raise HTTPException(

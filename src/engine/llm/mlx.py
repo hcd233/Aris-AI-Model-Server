@@ -1,4 +1,5 @@
-from typing import Any, AsyncGenerator, AsyncIterator, Dict, List, Literal, Sequence
+from typing import (Any, AsyncGenerator, AsyncIterator, Dict, List, Literal,
+                    Sequence)
 
 import mlx.core as mx
 from mlx_lm.tokenizer_utils import TokenizerWrapper
@@ -111,7 +112,7 @@ class MLXEngine(BaseEngine, MLXConfig):
             prompt_token_ids=prompt_token_ids,
         )
 
-    async def invoke(
+    async def _invoke(
         self,
         messages: Sequence[Dict[str, str]],
         system: str | None = None,

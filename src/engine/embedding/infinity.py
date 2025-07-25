@@ -1,4 +1,3 @@
-import asyncio
 from typing import List
 
 from cachetools import LRUCache
@@ -62,8 +61,5 @@ class SentenceTransformerEmbeddingEngine(BaseEngine, EmbeddingConfig):
 
         return [EmbeddingResult(embedding=embedding, index=i, object="embedding") for i, embedding in enumerate(embeddings)]
 
-    async def invoke(self, sentences: List[str]) -> List[EmbeddingResult]:
-        return await asyncio.to_thread(self._invoke, sentences)
-
-    async def stream(self, sentences: List[str]) -> List[EmbeddingResult]:
+    def stream(self, sentences: List[str]) -> List[EmbeddingResult]:
         raise NotImplementedError(f"{self.__class__.__name__} does not implement `stream` method")

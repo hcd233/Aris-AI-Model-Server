@@ -41,7 +41,7 @@ async def rerank(request: RerankRequest) -> RerankResponse:
             detail=f"Invalid model name: {request.model}",
         )
 
-    results = engine.invoke(request.query, request.documents)
+    results = await engine.invoke(request.query, request.documents)
     logger.debug(f"[Cohere Rerank] result: {results}")
 
     sorted_results = sorted(enumerate(results), key=lambda x: x[1]["relevent_score"], reverse=True)

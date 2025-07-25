@@ -32,7 +32,6 @@ role_mapping = {
 }
 
 
-
 def _parse_chat_message(messages: List[ChatMessage]) -> List[Dict[Literal["role", "content"], str]]:
     if not messages:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No messages provided")
@@ -130,7 +129,7 @@ async def chat_completions(request: ChatCompletionRequest) -> ChatCompletionResp
 
         return EventSourceResponse(stream_events, media_type="text/event-stream")
 
-    results = await engine.invoke(
+    results = await engine._invoke(
         parsed_messages,
         system,
         tools,
