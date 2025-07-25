@@ -22,6 +22,7 @@ class InfinityRerankerEngine(BaseEngine, InfinityRerankerConfig):
             batch_size=config.batch_size,
             dtype=config.dtype,
             compile=True,
+            bettertransformer=False,
         )
 
         # 创建 AsyncEmbeddingEngine
