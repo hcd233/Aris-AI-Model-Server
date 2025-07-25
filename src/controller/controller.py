@@ -5,7 +5,7 @@ import yaml
 from pydantic import BaseModel
 
 from src.config.model import (EmbeddingConfig, LLMConfig, MLXConfig,
-                              RerankerConfig, VLLMConfig)
+                              InfinityRerankerConfig, SentenceTransformerRerankerConfig, VLLMConfig)
 from src.logger import logger
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class ModelController(BaseModel):
     llm_configs: Dict[str, LLMConfig]
     embedding_configs: Dict[str, EmbeddingConfig]
-    reranker_configs: Dict[str, RerankerConfig]
+    reranker_configs: Dict[str, SentenceTransformerRerankerConfig]
 
     @classmethod
     def from_yaml(cls, path: PathLike) -> "ModelController":
@@ -48,9 +48,12 @@ class ModelController(BaseModel):
 
         for alias, kwargs in config.get("reranker", {}).items():
             if alias in reranker_configs:
-                logger.error(f"Duplicate reranker alias: {alias}")
-                exit(1)
-            reranker_configs[alias] = RerankerConfig(alias=alias, **kwargs)
+                if kwargs.get("backend") == "infinity":
+                    reranker_configs[alias] = InfinityRerankerConfig(alias=alias, **kwargs)
+                elif kwargs.get("backend") == "sentence_transformer":
+                    reranker_configs[alias] = SentenceTransformerRerankerConfig(alias=alias, **kwargs)
+                else:
+                    raise NotImplementedError(f"Unsupported reranker backend: {kwargs.get('backend')}")
 
         return cls(
             llm_configs=llm_configs,

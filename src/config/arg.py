@@ -1,9 +1,7 @@
 from argparse import ArgumentParser
-from os import PathLike
 from pathlib import Path
 from typing import Any, Dict
 
-import yaml
 from pydantic import BaseModel
 
 
@@ -35,38 +33,6 @@ class EmbeddingConfig(BaseModel):
 
 
 class RerankerConfig(BaseModel):
-    alias: str
-    path: str
-    batch_size: int
-    max_seq_len: int
+    pass
 
 
-class ModelConfig(BaseModel):
-    llm_configs: Dict[str, LLMConfig]
-    embedding_configs: Dict[str, EmbeddingConfig]
-    reranker_configs: Dict[str, RerankerConfig]
-
-    @classmethod
-    def from_yaml(cls, path: PathLike) -> "ModelConfig":
-        with open(path, "r") as fp:
-            config = yaml.safe_load(fp)
-
-        llm_configs, embedding_configs, reranker_configs = {}, {}, {}
-
-        for alias, kwargs in config.get("embedding", {}).items():
-            if alias in embedding_configs:
-                raise ValueError(f"Duplicate embedding alias: {alias}")
-
-            embedding_configs[alias] = EmbeddingConfig(alias=alias, **kwargs)
-
-        for alias, kwargs in config.get("reranker", {}).items():
-            if alias in reranker_configs:
-                raise ValueError(f"Duplicate reranker alias: {alias}")
-
-            reranker_configs[alias] = RerankerConfig(alias=alias, **kwargs)
-
-        return cls(
-            llm_configs=llm_configs,
-            embedding_configs=embedding_configs,
-            reranker_configs=reranker_configs,
-        )

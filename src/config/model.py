@@ -31,6 +31,14 @@ class EmbeddingConfig(BaseConfig):
     max_seq_len: int
 
 
-class RerankerConfig(BaseConfig):
+class SentenceTransformerRerankerConfig(BaseConfig):
+    backend: Literal["sentence_transformer"] = "sentence_transformer"
     batch_size: int
     max_seq_len: int
+
+
+class InfinityRerankerConfig(BaseConfig):
+    backend: Literal["infinity"] = "infinity"
+    engine: Literal["torch"] = "torch"
+    batch_size: int
+    dtype: Literal["float32", "float16", "bfloat16"] = "float32"
