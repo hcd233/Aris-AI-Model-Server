@@ -50,12 +50,14 @@ class ModelController(BaseModel):
 
         for alias, kwargs in config.get("reranker", {}).items():
             if alias in reranker_configs:
-                if kwargs.get("backend") == "infinity":
-                    reranker_configs[alias] = InfinityRerankerConfig(alias=alias, **kwargs)
-                elif kwargs.get("backend") == "sentence_transformer":
-                    reranker_configs[alias] = SentenceTransformerRerankerConfig(alias=alias, **kwargs)
-                else:
-                    raise NotImplementedError(f"Unsupported reranker backend: {kwargs.get('backend')}")
+                logger.error(f"Duplicate reranker alias: {alias}")
+                exit(1)
+            if kwargs.get("backend") == "infinity":
+                reranker_configs[alias] = InfinityRerankerConfig(alias=alias, **kwargs)
+            elif kwargs.get("backend") == "sentence_transformer":
+                reranker_configs[alias] = SentenceTransformerRerankerConfig(alias=alias, **kwargs)
+            else:
+                raise NotImplementedError(f"Unsupported reranker backend: {kwargs.get('backend')}")
 
         return cls(
             llm_configs=llm_configs,
