@@ -26,8 +26,7 @@ class InfinityRerankerEngine(BaseEngine, InfinityRerankerConfig):
         )
 
         # 创建 AsyncEmbeddingEngine
-        engine_array = AsyncEmbeddingEngine.from_args([engine_args])
-        engine = engine_array[0]  # 获取第一个引擎
+        engine = AsyncEmbeddingEngine.from_args(engine_args)
 
         logger.success(f"[InfinityRerankerEngine] load model from {config.path}")
         return cls(engine=engine, **config.model_dump())
