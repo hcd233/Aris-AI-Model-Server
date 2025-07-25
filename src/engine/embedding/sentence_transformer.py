@@ -21,7 +21,7 @@ class SentenceTransformerEmbeddingEngine(BaseEngine, EmbeddingConfig):
         model.max_seq_length = config.max_seq_len
         cache = LRUCache(maxsize=1000) if config.enable_cache else None
 
-        logger.success(f"[EmbeddingEngine] load model from {config.path}")
+        logger.success(f"[SentenceTransformerEmbeddingEngine] load model from {config.path}")
         return cls(model=model, cache=cache, **config.model_dump())
 
     def _invoke(self, sentences: List[str]) -> List[EmbeddingResult]:

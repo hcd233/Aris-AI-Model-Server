@@ -4,8 +4,9 @@ from typing import TYPE_CHECKING, Dict, Union
 import yaml
 from pydantic import BaseModel
 
-from src.config.model import (EmbeddingConfig, LLMConfig, MLXConfig,
-                              InfinityRerankerConfig, SentenceTransformerRerankerConfig, VLLMConfig)
+from src.config.model import (EmbeddingConfig, InfinityRerankerConfig,
+                              LLMConfig, MLXConfig,
+                              SentenceTransformerRerankerConfig, VLLMConfig)
 from src.logger import logger
 
 if TYPE_CHECKING:
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
         SentenceTransformerEmbeddingEngine
     from src.engine.llm.mlx import MLXEngine
     from src.engine.llm.vllm import VLLMEngine
+    from src.engine.reranker.infinity import InfinityRerankerEngine
     from src.engine.reranker.sentence_transformer import \
         SentenceTransformerRerankerEngine
 
@@ -62,16 +64,7 @@ class ModelController(BaseModel):
         )
 
     def get_reranker_engines(self) -> Dict[str, "SentenceTransformerRerankerEngine"]:
-        configs = self.reranker_configs.values()
-        if not configs:
-            return {}
-        try:
-            from src.engine.reranker.sentence_transformer import \
-                SentenceTransformerRerankerEngine
-        except ImportError:
-            logger.error("[ModelController] RerankerEngine import failed, run `pip install sentence-transformers` or `poetry install -E reranker`")
-            exit(1)
-        return {config.alias: SentenceTransformerRerankerEngine.from_config(config) for config in configs}
+        return {**self._get_sentence_transformer_reranker_engines(), **self._get_infinity_reranker_engines()}
 
     def get_embedding_engines(self) -> Dict[str, "SentenceTransformerEmbeddingEngine"]:
         configs = self.embedding_configs.values()
@@ -109,3 +102,26 @@ class ModelController(BaseModel):
             logger.error("[ModelController] MLXEngine import failed, run `pip install mlx` or `poetry install -E mlx`")
             exit(1)
         return {config.alias: MLXEngine.from_config(config) for config in configs}
+
+    def _get_sentence_transformer_reranker_engines(self) -> Dict[str, "SentenceTransformerRerankerEngine"]:
+        configs = [config for config in self.reranker_configs.values() if isinstance(config, SentenceTransformerRerankerConfig)]
+        if not configs:
+            return {}
+        try:
+            from src.engine.reranker.sentence_transformer import \
+                SentenceTransformerRerankerEngine
+        except ImportError:
+            logger.error("[ModelController] SentenceTransformerRerankerEngine import failed, run `pip install sentence-transformers` or `poetry install -E reranker`")
+            exit(1)
+        return {config.alias: SentenceTransformerRerankerEngine.from_config(config) for config in configs}
+
+    def _get_infinity_reranker_engines(self) -> Dict[str, "InfinityRerankerEngine"]:
+        configs = [config for config in self.reranker_configs.values() if isinstance(config, InfinityRerankerConfig)]
+        if not configs:
+            return {}
+        try:
+            from src.engine.reranker.infinity import InfinityRerankerEngine
+        except ImportError:
+            logger.error("[ModelController] InfinityRerankerEngine import failed, run `pip install infinity-emb` or `poetry install -E infinity`")
+            exit(1)
+        return {config.alias: InfinityRerankerEngine.from_config(config) for config in configs}

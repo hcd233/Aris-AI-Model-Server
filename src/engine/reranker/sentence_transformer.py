@@ -4,21 +4,21 @@ from typing import List
 import torch
 from sentence_transformers import CrossEncoder
 
-from src.config.arg import RerankerConfig
 from src.config.env import DEVICE
+from src.config.model import SentenceTransformerRerankerConfig
 from src.logger import logger
 
 from ..base import BaseEngine, RerankerResult
 
 
-class SentenceTransformerRerankerEngine(BaseEngine, RerankerConfig):
+class SentenceTransformerRerankerEngine(BaseEngine, SentenceTransformerRerankerConfig):
     model: CrossEncoder
 
     @classmethod
-    def from_config(cls, config: RerankerConfig) -> "SentenceTransformerRerankerEngine":
+    def from_config(cls, config: SentenceTransformerRerankerConfig) -> "SentenceTransformerRerankerEngine":
         model = CrossEncoder(config.path, max_length=config.max_seq_len, device=DEVICE)
 
-        logger.success(f"[RerankerEngine] load model from {config.path}")
+        logger.success(f"[SentenceTransformerRerankerEngine] load model from {config.path}")
         return cls(model=model, **config.model_dump())
 
     def _invoke(self, query: str, documents: List[str]) -> List[RerankerResult]:
