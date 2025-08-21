@@ -54,7 +54,7 @@ In AI application development, we often need to deploy multiple models to comple
 | /v1/rerankers | GET | ✅ | None | Get all Reranker models |
 | /v1/rerank | POST | ✅ | Cohere | Call Reranker for document reranking |
 | /v1/models | GET | ✅ | OpenAI | Get all models |
-| /v1/chat/completions | POST | ✅ | ✅ | Call LLM for dialogue generation |
+| /v1/chat/completions | POST | ✅ | OpenAI | Call LLM for dialogue generation |
 
 ## Project Structure
 
